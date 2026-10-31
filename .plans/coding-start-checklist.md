@@ -33,9 +33,11 @@ MacBook:
 
 MacBook, after 14:08:
 
-- [ ] Pull bd449e1 or later and build. c80627a fixes voice input, the learning card labels and
+- [x] Pull bd449e1 or later and build. c80627a fixes voice input, the learning card labels and
       Basil's moods, and bd449e1 saves the shopping list. Both were written on the Linux laptop,
       which means Xcode is the first compiler to see them. Fix any build error before anything else.
+      Checked at 14:32 on 5bd9337: `xcodebuild -destination 'generic/platform=iOS Simulator'` builds
+      with no errors. Not run, because this Mac's simulator has no iOS runtime installed (see below).
 - [ ] Check the shopping list: check items off, close and reopen the page, and quit and relaunch
       the app. The checks should stay, and editing, adding and swiping away lines should work.
 - [ ] Try the mic in the simulator. It should now wait up to 8 seconds for the first word and stop
