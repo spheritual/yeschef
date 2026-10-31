@@ -38,7 +38,7 @@ The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?
 
 1. Create the Xcode project as an iOS App with SwiftUI and Swift, product name `YesChef`, saved at the repo root, with "Create Git repository" unticked.
 2. Put the Gemini key in `Secrets.xcconfig` as `GEMINI_API_KEY = your-key-here`, set it as the target's configuration file, and read it through an Info.plist entry `GEMINI_API_KEY = $(GEMINI_API_KEY)`. The file is gitignored, and a key never goes in the repo.
-3. Put the non-UI code (models, the Gemini client, prompts, recipe parsing) in a local Swift package `YesChefCore`, which also builds with `swift test` on the Linux laptop. The UI and the Apple-only frameworks stay in the app target.
+3. Add the existing `YesChefCore/` folder to the Xcode project as a local Swift package and link it to the app target. Don't create a second package. It already holds the feedback learning code from `.plans/feedback-learning-spec.md`, and it builds and tests with `swift test` on the Linux laptop. Other non-UI code (models, the Gemini client, prompts, recipe parsing) goes in it too, and the UI and the Apple-only frameworks stay in the app target.
 4. The lowest iOS version is still open. iOS 17 or later covers SwiftData and `@Observable`.
 
 The Linux laptop has Swift 6.3.2 and can't build SwiftUI, which keeps its agent on `YesChefCore` and the docs.
