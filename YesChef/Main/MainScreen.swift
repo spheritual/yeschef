@@ -124,7 +124,9 @@ private struct BasilStage: View {
             ZStack {
                 BasilView(mood: model.mood)
                 if model.mood == .cooking {
+                    // Mirrored, which points the handle back toward Basil's hand.
                     Image("PanWithSteam")
+                        .scaleEffect(x: -1, y: 1)
                         .offset(x: 97, y: 42)
                         .accessibilityHidden(true)
                 }

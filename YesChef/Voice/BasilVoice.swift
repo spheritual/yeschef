@@ -40,6 +40,10 @@ private struct BasilVoice: ViewModifier {
         let plain = text.filter { !"*#_`".contains($0) }
         let utterance = AVSpeechUtterance(string: plain)
         utterance.voice = AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode())
+        // The mic switches the session to recording, and speech needs it back on playback.
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .spokenAudio)
+        try? session.setActive(true)
         speaker.stopSpeaking(at: .immediate)
         speaker.speak(utterance)
     }

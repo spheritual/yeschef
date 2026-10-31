@@ -80,7 +80,9 @@ private final class Listener {
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
-        request.requiresOnDeviceRecognition = recognizer.supportsOnDeviceRecognition
+        // On-device only fails at once when the speech model isn't downloaded, which is common in
+        // the simulator and closed the mic before anyone spoke; letting it use Apple's server works.
+        request.requiresOnDeviceRecognition = false
         Self.tap(engine.inputNode, format: format, into: request)
         engine.prepare()
         try engine.start()
@@ -93,11 +95,12 @@ private final class Listener {
             guard let self else { return }
             if let text {
                 continuation.yield(text)
-                if !isFinal { self.restartPauseTimer() }
+                if !isFinal { self.restartPauseTimer(after: 2) }
             }
             if isFinal { self.stop() }
         }
-        restartPauseTimer()
+        // Waiting for the first word gets longer than the pause that ends a question.
+        restartPauseTimer(after: 8)
         return stream
     }
 
@@ -113,14 +116,17 @@ private final class Listener {
         task = nil
         output?.finish()
         output = nil
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        let session = AVAudioSession.sharedInstance()
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        // A record-only session would leave Basil's spoken answer silent.
+        try? session.setCategory(.playback, mode: .spokenAudio)
     }
 
     /// A pause in speech ends the question.
-    private func restartPauseTimer() {
+    private func restartPauseTimer(after seconds: Double) {
         pause?.cancel()
         pause = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(1.6))
+            try? await Task.sleep(for: .seconds(seconds))
             if !Task.isCancelled { self?.stop() }
         }
     }

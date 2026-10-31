@@ -94,6 +94,10 @@ struct CookModeView: View {
     private func timer(seconds: Int) -> some View {
         HStack {
             if let end = timerEnds[index] {
+                // Basil watches the clock on the wall while the timer runs.
+                BasilView(mood: .timer)
+                    .scaleEffect(0.45)
+                    .frame(width: 62, height: 70)
                 Text(timerInterval: Date.now...max(end, .now), countsDown: true)
                     .font(.largeTitle.monospacedDigit())
                     .foregroundStyle(Theme.ink)

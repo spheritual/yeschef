@@ -48,21 +48,13 @@ struct LearningCard: View {
             }
             .chartXScale(domain: -limit...limit)
             .chartXAxis(.hidden)
-            .chartYAxis(.hidden)
-            // Labels are drawn from the chart's own scale, so each one sits right above its bar.
-            .chartOverlay { proxy in
-                GeometryReader { geo in
-                    if let frame = proxy.plotFrame.map({ geo[$0] }) {
-                        ForEach(rows) { row in
-                            if let y = proxy.position(forY: row.label) {
-                                Text(row.label)
-                                    .font(.caption2)
-                                    .foregroundStyle(Theme.muted)
-                                    .frame(width: frame.width, alignment: .leading)
-                                    .position(x: frame.minX + frame.width / 2, y: frame.minY + y - rowHeight * 0.33)
-                            }
-                        }
-                    }
+            // The chart lays out its own labels in a column beside the bars, which keeps each
+            // label on the same line as its bar; the hand-placed overlay drifted below them.
+            .chartYAxis {
+                AxisMarks(position: .leading) { _ in
+                    AxisValueLabel()
+                        .font(.caption2)
+                        .foregroundStyle(Theme.muted)
                 }
             }
             .frame(height: rowHeight * Double(rows.count))

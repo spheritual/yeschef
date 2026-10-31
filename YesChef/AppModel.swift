@@ -2,9 +2,11 @@ import Foundation
 import Observation
 import YesChefCore
 
-/// Basil's moods, which drive his animation (docs/architecture.md, "Screens").
+/// Basil's moods, which drive his animation (docs/design, tab 8). Cooking is thinking with the pan,
+/// listening hops, teaching reads from a cookbook, timer watches the wall clock, and yum and yuck
+/// are his reactions to a rating.
 nonisolated enum BasilMood: Sendable {
-    case idle, listening, cooking, talking, confused
+    case idle, listening, cooking, talking, teaching, timer, yum, yuck, confused
 }
 
 nonisolated struct ChatMessage: Identifiable, Hashable, Sendable {
@@ -59,7 +61,7 @@ final class AppModel {
             recipe = SampleData.recipe
             return say("I'm offline, so here's my sample recipe.")
         }
-        await run("Getting the recipe for \(idea.title)…", retry: { [weak self] in await self?.open(idea) }) {
+        await run("Getting the recipe for \(idea.title)…", teaching: true, retry: { [weak self] in await self?.open(idea) }) {
             self.recipe = try await planner.recipe(for: idea, household: self.household)
             return "Here's \(idea.title). Tap Start cooking when you're ready."
         }
@@ -70,7 +72,7 @@ final class AppModel {
     func importRecipe(from image: Data, mimeType: String = "image/jpeg") async {
         recipeIdea = nil
         guard let planner else { return say("I'm offline, so I can't read photos right now.") }
-        await run("Reading your recipe…", retry: { [weak self] in await self?.importRecipe(from: image, mimeType: mimeType) }) {
+        await run("Reading your recipe…", teaching: true, retry: { [weak self] in await self?.importRecipe(from: image, mimeType: mimeType) }) {
             let recipe = try await planner.recipeFromImage(image, mimeType: mimeType, household: self.household)
             self.recipe = recipe
             return "Got it: \(recipe.title). Tap Start cooking when you're ready."
@@ -81,7 +83,7 @@ final class AppModel {
     func ask(_ question: String, step: RecipeDetail.Step? = nil) async {
         messages.append(ChatMessage(speaker: .user, text: question))
         guard let planner else { return say("I can't reach Gemma right now, so I can't answer that one.") }
-        await run("Thinking…", retry: { [weak self] in await self?.ask(question, step: step) }) {
+        await run("Thinking…", teaching: true, retry: { [weak self] in await self?.ask(question, step: step) }) {
             try await planner.askChef(question, step: step, recipe: self.recipe)
         }
     }
@@ -92,6 +94,14 @@ final class AppModel {
         for member in household.members {
             learning[member.name, default: PreferenceModel()].record(signal, for: features)
         }
+        // Basil reacts to a rating: a spit at the screen for a bad one, sparkles for a great one.
+        if case .rated(let stars) = signal {
+            if stars <= 2 {
+                say("Blegh! I won't make that one again.", mood: .yuck)
+            } else if stars >= 4 {
+                say("Mmm, that hit the spot! I'll remember it.", mood: .yum)
+            }
+        }
     }
 
     /// Repeats the call that last failed, for the retry button on Basil's confused mood.
@@ -101,24 +111,26 @@ final class AppModel {
         await job()
     }
 
-    private func say(_ text: String) {
+    private func say(_ text: String, mood spoken: BasilMood = .talking) {
         subtitle = text
         messages.append(ChatMessage(speaker: .basil, text: text))
-        mood = .talking
+        mood = spoken
         // Back to idle after about as long as it takes to say it, whether or not he's muted.
         quietDown?.cancel()
         quietDown = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(min(max(Double(text.count) / 15, 2), 12)))
-            guard !Task.isCancelled, let self, self.mood == .talking else { return }
+            try? await Task.sleep(for: .seconds(min(max(Double(text.count) / 15, 3), 12)))
+            guard !Task.isCancelled, let self, self.mood == spoken else { return }
             self.mood = .idle
         }
     }
 
-    private func run(_ status: String, retry: @escaping () async -> Void, _ job: () async throws -> String) async {
+    /// Basil cooks with the pan while Gemma thinks, then talks, or teaches from his cookbook when
+    /// the reply is a recipe or an answer.
+    private func run(_ status: String, teaching: Bool = false, retry: @escaping () async -> Void, _ job: () async throws -> String) async {
         mood = .cooking
         subtitle = status
         do {
-            say(try await job())
+            say(try await job(), mood: teaching ? .teaching : .talking)
         } catch {
             retryJob = retry
             mood = .confused
