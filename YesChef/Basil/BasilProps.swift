@@ -145,3 +145,27 @@ struct WallClock: View {
         .frame(width: 32, height: 32)
     }
 }
+
+/// The frying pan Basil stirs while Gemma thinks, with steam curling up from it.
+struct SteamingPan: View {
+    let t: Double
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<3, id: \.self) { i in
+                let phase = (t * 0.6 + Double(i) / 3).truncatingRemainder(dividingBy: 1)
+                Capsule()
+                    .fill(scheme == .dark ? Color.white : Color.gray)
+                    .frame(width: 4, height: 14)
+                    .blur(radius: 1.5)
+                    .opacity(0.5 * sin(phase * .pi))
+                    .offset(x: Double(i - 1) * 11 + sin(t * 2 + Double(i) * 2) * 3, y: -12 - phase * 24)
+            }
+            // Handle, then the pan itself with a light rim so it reads on a dark stage.
+            Capsule().fill(Color(white: 0.3)).frame(width: 26, height: 5).offset(x: 31, y: -1)
+            Capsule().fill(Color(white: 0.2)).frame(width: 44, height: 12)
+                .overlay(Capsule().stroke(Color(white: scheme == .dark ? 0.6 : 0.4), lineWidth: 1.2))
+        }
+    }
+}

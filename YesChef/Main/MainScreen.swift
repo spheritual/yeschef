@@ -132,13 +132,6 @@ private struct BasilStage: View {
         VStack(spacing: 0) {
             ZStack {
                 BasilView(mood: model.mood, outfit: model.points.wearing)
-                if model.mood == .cooking {
-                    // Mirrored, which points the handle back toward Basil's hand.
-                    Image("PanWithSteam")
-                        .scaleEffect(x: -1, y: 1)
-                        .offset(x: 97, y: 42)
-                        .accessibilityHidden(true)
-                }
                 BurgerButton(isOpen: $menuOpen)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .padding(.leading, 16)

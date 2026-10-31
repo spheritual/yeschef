@@ -37,12 +37,16 @@ struct BasilView: View {
                     .blur(radius: 3)
                     .offset(y: 72)
                 ZStack {
-                    JellyBasil(pose: pose)
+                    JellyBasil(pose: pose, outfit: outfit)
                     BasilHeldItem(pose: pose, t: t)
                 }
                 .scaleEffect(x: pose.sx * (1 - kick), y: pose.sy * (1 + kick), anchor: .bottom)
                 .rotationEffect(.degrees(pose.tilt), anchor: .bottom)
                 .offset(y: -pose.lift)
+                if mood == .cooking {
+                    SteamingPan(t: t)
+                        .position(x: 112, y: 146)
+                }
                 BasilExtras(mood: mood, t: t)
                     .frame(width: 136, height: 153)
                     .offset(y: -pose.lift * 0.5)

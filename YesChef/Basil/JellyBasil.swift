@@ -4,11 +4,25 @@ import SwiftUI
 /// for the current frame; nothing here animates by itself.
 struct JellyBasil: View {
     let pose: BasilPose
+    var outfit = "Basil"
     @Environment(\.colorScheme) private var scheme
 
     private var dark: Bool { scheme == .dark }
-    private let core = Color(red: 0.62, green: 0.97, blue: 0.70)
-    private var edge: Color { dark ? Color(red: 0.20, green: 0.68, blue: 0.40) : Color(red: 0.14, green: 0.55, blue: 0.31) }
+    private var golden: Bool { outfit == "BasilGoldenHour" }
+    private var core: Color { golden ? Color(red: 0.88, green: 0.97, blue: 0.62) : Color(red: 0.62, green: 0.97, blue: 0.70) }
+    private var edge: Color {
+        if golden { return dark ? Color(red: 0.62, green: 0.70, blue: 0.24) : Color(red: 0.50, green: 0.58, blue: 0.16) }
+        return dark ? Color(red: 0.20, green: 0.68, blue: 0.40) : Color(red: 0.14, green: 0.55, blue: 0.31)
+    }
+    /// The hat band and, for the club, the badge colour.
+    private var band: Color {
+        switch outfit {
+        case "BasilGoldenHour": Color(red: 0.98, green: 0.78, blue: 0.25)
+        case "BasilTomatoClub": Color(red: 0.88, green: 0.26, blue: 0.20)
+        case "BasilSundayBaker": Color(red: 0.96, green: 0.80, blue: 0.82)
+        default: .white
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -92,13 +106,45 @@ struct JellyBasil: View {
     private var apron: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .fill(LinearGradient(colors: [.white, Color(white: 0.9)], startPoint: .top, endPoint: .bottom))
+                .fill(LinearGradient(colors: apronColors, startPoint: .top, endPoint: .bottom))
                 .frame(width: 38, height: 30)
+            if outfit == "BasilSundayBaker" {
+                // Flour dusting.
+                ForEach(0..<7, id: \.self) { i in
+                    Circle().fill(.white.opacity(0.85)).frame(width: i.isMultiple(of: 2) ? 3.5 : 2.5)
+                        .offset(x: [-12, 8, -4, 13, -9, 3, 0][i], y: [-9, -10, -2, 2, 9, 10, -7][i])
+                }
+            }
             RoundedRectangle(cornerRadius: 3, style: .continuous)
                 .stroke(Color(white: 0.78), lineWidth: 1)
                 .frame(width: 16, height: 9).offset(y: 5)
         }
+        .overlay { outfitDetails }
         .position(x: 68, y: 128)
+    }
+
+    private var apronColors: [Color] {
+        switch outfit {
+        case "BasilSundayBaker": [Color(red: 1, green: 0.89, blue: 0.80), Color(red: 0.96, green: 0.78, blue: 0.66)]
+        case "BasilGoldenHour": [Color(red: 1, green: 0.95, blue: 0.78), Color(red: 0.98, green: 0.84, blue: 0.5)]
+        default: [.white, Color(white: 0.9)]
+        }
+    }
+
+    /// Small touches per outfit: a tomato badge for the club, a sun glint for golden hour.
+    @ViewBuilder
+    private var outfitDetails: some View {
+        if outfit == "BasilTomatoClub" {
+            ZStack {
+                Circle().fill(band).frame(width: 12, height: 12)
+                Circle().fill(.white.opacity(0.7)).frame(width: 3, height: 3).offset(x: -2, y: -2)
+                Capsule().fill(Color(red: 0.2, green: 0.6, blue: 0.3)).frame(width: 7, height: 3).offset(y: -6)
+            }
+            .offset(y: -8)
+        } else if golden {
+            Image(systemName: "sun.max.fill").font(.system(size: 10))
+                .foregroundStyle(Color(red: 0.98, green: 0.7, blue: 0.15)).offset(y: -2)
+        }
     }
 
     private var hat: some View {
@@ -107,7 +153,7 @@ struct JellyBasil: View {
             Circle().fill(fill).frame(width: 24, height: 24).position(x: 54, y: 33)
             Circle().fill(fill).frame(width: 24, height: 24).position(x: 82, y: 33)
             Circle().fill(fill).frame(width: 30, height: 30).position(x: 68, y: 26)
-            RoundedRectangle(cornerRadius: 5, style: .continuous).fill(fill)
+            RoundedRectangle(cornerRadius: 5, style: .continuous).fill(outfit == "Basil" ? AnyShapeStyle(fill) : AnyShapeStyle(band))
                 .frame(width: 48, height: 15).position(x: 68, y: 46)
             // Fold lines and the shadow where the band meets the puffs.
             Capsule().fill(Color.black.opacity(0.07)).frame(width: 44, height: 3).position(x: 68, y: 40)
