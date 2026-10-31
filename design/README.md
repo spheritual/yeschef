@@ -12,6 +12,9 @@ Figma stays the source of truth, and these files are a copy anyone can open with
 - `assets/`: Basil and his four wardrobe outfits (everyday apron, Sunday baker, tomato club and
   golden hour) as SVGs, plus the burger menu button. These are vectors, which means they scale to
   any size without blurring, and Xcode can take them straight into an asset catalog.
+- `wireframes/`: the team's wireframe mockups, moved here from the repo root: the week plan,
+  the Basil-cooking loading proposal, an overview of the whole Figma board, and the salmon photo
+  the mockups use at 1x and 2x.
 - `tokens.json`: the colors, type sizes and corner radii the screens use, each with a role name.
   The headings use Fraunces and the body text uses Inter. Both are open-source fonts under the SIL
   Open Font License, and the app has to bundle them to match the screens.
