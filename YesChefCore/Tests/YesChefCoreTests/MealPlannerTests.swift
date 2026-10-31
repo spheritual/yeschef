@@ -17,6 +17,37 @@ actor ScriptedModel: LanguageModel {
     }
 }
 
+/// Answers each day's planning call by the day its prompt names, since parallel calls arrive in
+/// any order. It also counts how many calls run at the same time.
+actor DayModel: LanguageModel {
+    private let replies: [String: String]
+    private let delays: [String: Duration]
+    private var running = 0
+    private(set) var mostAtOnce = 0
+
+    init(_ replies: [String: String], delays: [String: Duration] = [:]) {
+        self.replies = replies
+        self.delays = delays
+    }
+
+    func generate(prompt: String, system: String?, image: Data?, imageMIMEType: String) async throws -> String {
+        guard let match = replies.first(where: { prompt.contains("Plan dinners for these days: \($0.key).") }) else {
+            throw GemmaError.emptyReply
+        }
+        running += 1
+        mostAtOnce = max(mostAtOnce, running)
+        defer { running -= 1 }
+        try await Task.sleep(for: delays[match.key] ?? .milliseconds(200))
+        return match.value
+    }
+}
+
+/// A one-day planning reply with a plain chicken dinner per title, labelled with a day Gemma made up.
+func dayReply(_ titles: String...) -> String {
+    let ideas = titles.map { #"{"title":"\#($0)","summary":"x","protein":"chicken","flavours":["savory"],"minutes":20,"difficulty":"easy","costPerServing":3,"ingredients":["chicken"]}"# }
+    return #"{"days":[{"day":"Someday","ideas":["# + ideas.joined(separator: ",") + "]}]}"
+}
+
 final class MealPlannerTests: XCTestCase {
     let week = """
         Sure, here's the plan:
@@ -32,7 +63,16 @@ final class MealPlannerTests: XCTestCase {
         """
 
     func testPlanDropsAllergensAndDaysWithNothingSafe() async throws {
-        let planner = MealPlanner(model: ScriptedModel([week]))
+        let monday = """
+            {"days":[{"day":"Monday","ideas":[
+              {"title":"Peanut noodles","summary":"x","protein":"vegetarian","flavours":["savory"],"minutes":20,"difficulty":"easy","costPerServing":2,"ingredients":["noodles","Peanut butter"]},
+              {"title":"Chicken tacos","summary":"x","protein":"chicken","flavours":["spicy"],"minutes":25,"difficulty":"easy","costPerServing":3.5,"ingredients":["chicken","tortillas"]}]}]}
+            """
+        let tuesday = """
+            {"days":[{"day":"Tuesday","ideas":[
+              {"title":"Satay skewers","summary":"x","protein":"chicken","flavours":["savory"],"minutes":30,"difficulty":"medium","costPerServing":4,"ingredients":["chicken","peanut sauce"]}]}]}
+            """
+        let planner = MealPlanner(model: DayModel(["Monday": monday, "Tuesday": tuesday]))
         let plan = try await planner.planWeek(for: SampleData.household, days: ["Monday", "Tuesday"], busyDays: ["Monday"])
         XCTAssertEqual(plan.days.map(\.day), ["Monday"])
         XCTAssertEqual(plan.days[0].pick.title, "Chicken tacos")
@@ -51,6 +91,31 @@ final class MealPlannerTests: XCTestCase {
         XCTAssertEqual(tacos.features.costPerServing, 3.5)
     }
 
+    func testDaysAreAskedForAtOnceAndKeepTheirOrder() async throws {
+        // Monday answers last, and the plan still starts on Monday.
+        let model = DayModel(["Monday": dayReply("Monday tacos"), "Tuesday": dayReply("Tuesday stew"), "Wednesday": dayReply("Wednesday soup")],
+                             delays: ["Monday": .milliseconds(500)])
+        let plan = try await MealPlanner(model: model, cookbook: nil).planWeek(for: SampleData.household, days: ["Monday", "Tuesday", "Wednesday"])
+        XCTAssertEqual(plan.days.map(\.day), ["Monday", "Tuesday", "Wednesday"])
+        XCTAssertEqual(plan.days.map(\.pick.title), ["Monday tacos", "Tuesday stew", "Wednesday soup"])
+        let mostAtOnce = await model.mostAtOnce
+        XCTAssertEqual(mostAtOnce, 3)
+    }
+
+    func testADinnerAnEarlierDayGotGoesLast() async throws {
+        let same = dayReply("Chicken tacos", "Chicken soup")
+        let plan = try await MealPlanner(model: DayModel(["Monday": same, "Tuesday": same]), cookbook: nil)
+            .planWeek(for: SampleData.household, days: ["Monday", "Tuesday"])
+        XCTAssertNotEqual(plan.days[0].pick.title, plan.days[1].pick.title)
+        XCTAssertEqual(plan.days[1].alternatives.map(\.title), [plan.days[0].pick.title])
+    }
+
+    func testADayWhoseCallFailsIsLeftOut() async throws {
+        let model = DayModel(["Monday": dayReply("Chicken tacos"), "Tuesday": "not JSON at all"])
+        let plan = try await MealPlanner(model: model, cookbook: nil).planWeek(for: SampleData.household, days: ["Monday", "Tuesday"])
+        XCTAssertEqual(plan.days.map(\.day), ["Monday"])
+    }
+
     func testRetriesOnceAfterNonJSON() async throws {
         let model = ScriptedModel(["Here are some ideas for you!", week])
         let plan = try await MealPlanner(model: model).planWeek(for: SampleData.household, days: ["Monday"])
@@ -63,7 +128,7 @@ final class MealPlannerTests: XCTestCase {
     func testGivesUpAfterTwoBadReplies() async {
         let planner = MealPlanner(model: ScriptedModel(["nope", "still nope"]))
         do {
-            _ = try await planner.planWeek(for: SampleData.household)
+            _ = try await planner.planWeek(for: SampleData.household, days: ["Monday"])
             XCTFail("expected a failure")
         } catch GemmaError.notJSON {
         } catch {

@@ -7,7 +7,7 @@ to [requirements.md](../requirements.md).
 
 | Feature | What the cook does | Screens | Gemma 4 call | Status | BR |
 | --- | --- | --- | --- | --- | --- |
-| Week plan | Taps Plan my week or asks Basil for one | Main screen, This week | `planWeek`: 3 ideas per day, then allergy rules and ranking | On main; live call runs | BR-01 |
+| Week plan | Taps Plan my week or asks Basil for one | Main screen, This week | `planWeek`: one call per day, all at once, 3 ideas each, then allergy rules and ranking | On main; live call runs | BR-01 |
 | Cookbook grounding | Sees which classic cookbook a dinner was adapted from | Day cards, Recipe | every prompt carries the best-matching passages from six public-domain Project Gutenberg cookbooks | On main; tested, live calls run with it on, and the MacBook build carries the cookbooks | BR-01, BR-02 |
 | Swaps | Picks another dinner for a day | This week | none, the ranked alternatives come with the plan | On main | BR-01 |
 | Allergy and dislike rules | Lists what each member must never eat | Household | none, the rules run in code before ranking and after every recipe | On main; tested, including "peanut-free" notes | BR-01 |
@@ -39,3 +39,11 @@ seconds to read a recipe photo, and about 37 seconds for a two-day plan, a recip
 together on the Linux laptop. With the cookbooks on, the MacBook timed a three-day plan, a recipe
 and a question at under 60 seconds in the simulator. A full seven-day plan wasn't timed, which is
 why the demo plans three days while Basil does his cooking animation.
+
+Gemma's time grows with how much it writes, at about 160 characters a second on every call we
+timed. A three-day plan in one call took 30 seconds on the Linux laptop, which is why `planWeek`
+now asks for each day in its own call, all at once, and the same plan took 11.8 seconds. A recipe
+takes about 20 seconds. The app now starts fetching the recipe for each planned dinner as soon as
+the plan arrives, which hides that wait when the cook doesn't tap a dinner right away. Indexing
+the cookbooks took about 4 seconds in a debug build, and it now runs off the main thread when the
+app starts. The Mac timings for these changes aren't measured yet.

@@ -4,12 +4,38 @@ public struct MealPlanner: Sendable {
     public static let weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
     private let model: any LanguageModel
-    // Retrieval over the bundled Gutenberg cookbooks; nil runs the planner on Gemma alone.
-    public let cookbook: Cookbook?
+    private let library: Library
 
-    public init(model: any LanguageModel, cookbook: Cookbook? = Cookbook.bundled) {
+    // Retrieval over the Gutenberg cookbooks. The bundled corpus is indexed on first use inside an
+    // async call, never on the caller's thread, because the index takes seconds in a debug build.
+    private enum Library: Sendable {
+        case bundled
+        case given(Cookbook?)
+    }
+
+    /// Uses the bundled cookbooks.
+    public init(model: any LanguageModel) {
         self.model = model
-        self.cookbook = cookbook
+        self.library = .bundled
+    }
+
+    /// Uses the given cookbooks, or Gemma alone when `cookbook` is nil.
+    public init(model: any LanguageModel, cookbook: Cookbook?) {
+        self.model = model
+        self.library = .given(cookbook)
+    }
+
+    /// Builds the bundled cookbook index ahead of the first plan. Being async and nonisolated, it
+    /// runs off the caller's actor, which keeps app launch from freezing while it indexes.
+    public static func warmUp() async {
+        _ = Cookbook.bundled
+    }
+
+    var cookbook: Cookbook? {
+        switch library {
+        case .bundled: Cookbook.bundled
+        case .given(let cookbook): cookbook
+        }
     }
 
     func references(for query: String, limit: Int) -> [Cookbook.Passage] {
@@ -18,6 +44,8 @@ public struct MealPlanner: Sendable {
 
     // Gemma proposes ideas, the hard rules drop anything a member must avoid, and the household's
     // preference models rank what's left, as in .plans/feedback-learning-spec.md.
+    // Each day is its own Gemma call and all of them run at once, because Gemma's time grows with
+    // how much it writes. On 2026-10-31 three days took 30 s in one call and 11.8 s in parallel.
     public func planWeek(
         for household: Household,
         days: [String] = MealPlanner.weekdays,
@@ -26,18 +54,47 @@ public struct MealPlanner: Sendable {
         ideasPerDay: Int = 3
     ) async throws -> WeekPlan {
         let tastes = household.members.flatMap { $0.likes + [$0.diet ?? ""] }.joined(separator: " ")
-        let passages = references(for: tastes.isEmpty ? "chicken soup vegetables" : tastes, limit: 6)
+        let shelf = references(for: tastes.isEmpty ? "chicken soup vegetables" : tastes, limit: 6 * days.count)
             .filter { passage in household.bannedTerms.allSatisfy { !HardRules.mentions(passage.text, $0.lowercased()) } }
-        let reply = try await askJSON(WeekReply.self, prompt: Prompts.week(household, days: days, busyDays: busyDays, ideasPerDay: ideasPerDay, references: passages))
-        var rng = SystemRandomNumberGenerator()
-        let planned: [WeekPlan.Day] = reply.days.compactMap { day in
-            let safe = HardRules.excluding(day.ideas.map(\.idea), ingredients: \.ingredients, banned: household.bannedTerms)
-            let context = DayContext(isBusy: busyDays.contains(day.day))
-            let ranked = Recommender.rank(safe, features: { FeatureEncoder.encode($0.features, on: context) }, models: learning, using: &rng)
-            guard let first = ranked.first else { return nil }
-            return WeekPlan.Day(day: day.day, isBusy: context.isBusy, pick: first.item, alternatives: ranked.dropFirst().map(\.item))
+        let replies = await withTaskGroup(of: (Int, Result<[DinnerIdea], any Error>).self) { group in
+            for (index, day) in days.enumerated() {
+                // Every nth classic goes to day n, which keeps the calls from all adapting the same book.
+                let passages = shelf.indices.filter { $0 % days.count == index }.prefix(6).map { shelf[$0] }
+                let prompt = Prompts.week(household, days: [day], busyDays: busyDays, ideasPerDay: ideasPerDay, references: passages)
+                group.addTask {
+                    do {
+                        // The ideas belong to the day that was asked for, whatever day Gemma wrote on them.
+                        let reply = try await self.askJSON(WeekReply.self, prompt: prompt)
+                        return (index, .success(reply.days.flatMap { $0.ideas.map(\.idea) }))
+                    } catch {
+                        return (index, .failure(error))
+                    }
+                }
+            }
+            var replies = [Result<[DinnerIdea], any Error>?](repeating: nil, count: days.count)
+            for await (index, result) in group { replies[index] = result }
+            return replies
         }
-        guard !planned.isEmpty else { throw GemmaError.noSafeIdeas }
+
+        var rng = SystemRandomNumberGenerator()
+        var picked: Set<String> = []
+        var planned: [WeekPlan.Day] = []
+        for (day, result) in zip(days, replies) {
+            guard case .success(let ideas)? = result else { continue }
+            let safe = HardRules.excluding(ideas, ingredients: \.ingredients, banned: household.bannedTerms)
+            let context = DayContext(isBusy: busyDays.contains(day))
+            let ranked = Recommender.rank(safe, features: { FeatureEncoder.encode($0.features, on: context) }, models: learning, using: &rng).map(\.item)
+            // The calls can't see each other, which is why a dinner an earlier day already got goes last.
+            let order = ranked.filter { !picked.contains($0.title.lowercased()) } + ranked.filter { picked.contains($0.title.lowercased()) }
+            guard let first = order.first else { continue }
+            picked.insert(first.title.lowercased())
+            planned.append(WeekPlan.Day(day: day, isBusy: context.isBusy, pick: first, alternatives: Array(order.dropFirst())))
+        }
+        // A day whose call failed is left out. When every day failed, the first day's error says why.
+        guard !planned.isEmpty else {
+            for case .failure(let error)? in replies { throw error }
+            throw GemmaError.noSafeIdeas
+        }
         return WeekPlan(days: planned)
     }
 
