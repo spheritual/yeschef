@@ -3,27 +3,38 @@ import Speech
 import SwiftUI
 
 /// The mic in the subtitle bar: listens, then sends the words to `model.ask(_:)`.
-/// Tap to start; tap again or pause to stop. If listening isn't possible it opens the chat to type.
+/// Tap to start; tap again or pause to stop. If listening isn't possible it says so and opens the chat to type.
 struct MicButton: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var listener = Listener()
     @State private var showChat = false
+
+    private var busy: Bool { model.mood == .cooking && !listener.isListening }
 
     var body: some View {
         Button {
             if listener.isListening {
                 listener.stop()
-            } else {
+            } else if !listener.isStarting {
                 Task { await listen() }
             }
         } label: {
-            Label(listener.isListening ? "Stop listening" : "Talk to Basil",
-                  systemImage: listener.isListening ? "mic.fill" : "mic")
-                .labelStyle(.iconOnly)
-                .font(.title2)
-                .foregroundStyle(listener.isListening ? Color.red : Color.primary)
-                .frame(minWidth: 44, minHeight: 44)
+            ZStack {
+                if listener.isListening { PulseRing(animated: !reduceMotion) }
+                Circle()
+                    .fill(listener.isListening ? Theme.green : Color.clear)
+                Image(systemName: listener.isListening ? "mic.fill" : "mic")
+                    .font(.title3)
+                    .foregroundStyle(listener.isListening ? Theme.onGreen : Theme.ink)
+            }
+            .frame(width: 44, height: 44)
+            .contentShape(.circle)
+            .animation(.easeOut(duration: 0.15), value: listener.isListening)
         }
+        .buttonStyle(MicPressStyle())
+        .disabled(busy)
+        .accessibilityLabel(listener.isListening ? "Stop listening" : "Talk to Basil")
         .sheet(isPresented: $showChat) { ChatView() }
     }
 
@@ -38,18 +49,50 @@ struct MicButton: View {
                 model.subtitle = text
             }
         } catch {
-            model.mood = resting.0
-            model.subtitle = resting.1
+            // No permission, no mic (the simulator) or no speech service: typing still works.
+            model.mood = resting.0 == .listening ? .idle : resting.0
+            model.subtitle = "I can't hear you right now. Type your question instead."
             showChat = true
             return
         }
         spoken = spoken.trimmingCharacters(in: .whitespacesAndNewlines)
         if spoken.isEmpty {
-            model.mood = resting.0
-            model.subtitle = resting.1
+            model.mood = resting.0 == .listening ? .idle : resting.0
+            model.subtitle = resting.0 == .listening ? "I didn't catch that. Tap the mic to try again." : resting.1
         } else {
             await model.ask(spoken)
         }
+    }
+}
+
+/// A ring that grows and fades while listening. Still when Reduce Motion is on.
+private struct PulseRing: View {
+    let animated: Bool
+    @State private var grown = false
+
+    var body: some View {
+        Circle()
+            .stroke(Theme.green, lineWidth: 2)
+            .scaleEffect(animated && grown ? 1.5 : 1)
+            .opacity(animated ? (grown ? 0 : 0.5) : 0.35)
+            .onAppear {
+                guard animated else { return }
+                withAnimation(.easeOut(duration: 1.2).repeatForever(autoreverses: false)) { grown = true }
+            }
+            .accessibilityHidden(true)
+    }
+}
+
+private struct MicPressStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && isEnabled
+        configuration.label
+            .scaleEffect(pressed && !reduceMotion ? 0.96 : 1)
+            .opacity(isEnabled ? 1 : 0.4)
+            .animation(.easeOut(duration: 0.15), value: pressed)
     }
 }
 
@@ -59,6 +102,8 @@ private final class Listener {
     struct Unavailable: Error {}
 
     private(set) var isListening = false
+    private(set) var isStarting = false
+    private var heard = false
     private let engine = AVAudioEngine()
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
@@ -67,6 +112,8 @@ private final class Listener {
 
     /// Starts listening and streams the partial transcript. The stream ends when listening stops.
     func start() async throws -> AsyncThrowingStream<String, Error> {
+        isStarting = true
+        defer { isStarting = false }
         guard await Self.authorized(),
               let recognizer = SFSpeechRecognizer(locale: .current), recognizer.isAvailable
         else { throw Unavailable() }
@@ -76,7 +123,10 @@ private final class Listener {
         try session.setActive(true)
 
         let format = engine.inputNode.outputFormat(forBus: 0)
-        guard format.sampleRate > 0, format.channelCount > 0 else { throw Unavailable() }  // no mic
+        guard format.sampleRate > 0, format.channelCount > 0 else {  // no mic
+            try? session.setActive(false)
+            throw Unavailable()
+        }
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
@@ -85,17 +135,29 @@ private final class Listener {
         request.requiresOnDeviceRecognition = false
         Self.tap(engine.inputNode, format: format, into: request)
         engine.prepare()
-        try engine.start()
+        do {
+            try engine.start()
+        } catch {
+            engine.inputNode.removeTap(onBus: 0)
+            try? session.setActive(false)
+            throw error
+        }
 
         let (stream, continuation) = AsyncThrowingStream<String, Error>.makeStream()
         output = continuation
         self.request = request
         isListening = true
-        task = Self.recognize(recognizer, request) { [weak self] text, isFinal in
-            guard let self else { return }
+        heard = false
+        task = Self.recognize(recognizer, request) { [weak self] text, isFinal, failed in
+            // A late callback from an earlier session must not touch the current one.
+            guard let self, self.request === request else { return }
             if let text {
+                self.heard = true
                 continuation.yield(text)
+                // 2 s after the last word ends the question.
                 if !isFinal { self.restartPauseTimer(after: 2) }
+            } else if failed && !self.heard {
+                continuation.finish(throwing: Unavailable())
             }
             if isFinal { self.stop() }
         }
@@ -151,12 +213,13 @@ private final class Listener {
 
     private nonisolated static func recognize(
         _ recognizer: SFSpeechRecognizer, _ request: SFSpeechAudioBufferRecognitionRequest,
-        handler: @escaping @MainActor (String?, Bool) -> Void
+        handler: @escaping @MainActor (String?, Bool, Bool) -> Void
     ) -> SFSpeechRecognitionTask {
         recognizer.recognitionTask(with: request) { result, error in
             let text = result?.bestTranscription.formattedString
-            let isFinal = (result?.isFinal ?? false) || error != nil
-            Task { @MainActor in handler(text, isFinal) }
+            let failed = error != nil
+            let isFinal = (result?.isFinal ?? false) || failed
+            Task { @MainActor in handler(text, isFinal, failed) }
         }
     }
 }

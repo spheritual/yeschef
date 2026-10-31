@@ -18,9 +18,11 @@ struct ChatView: View {
                     LazyVStack(spacing: 8) {
                         if model.messages.isEmpty {
                             Text("Ask Basil anything about your week or what's on the stove.")
-                                .foregroundStyle(.secondary)
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.muted)
                                 .multilineTextAlignment(.center)
-                                .padding(.top, 40)
+                                .padding(.horizontal, 32)
+                                .padding(.top, 48)
                         }
                         ForEach(model.messages) { message in
                             Bubble(message: message)
@@ -28,13 +30,25 @@ struct ChatView: View {
                         if isThinking {
                             Bubble(message: ChatMessage(speaker: .basil, text: "…"), typing: true)
                         }
+                        if model.mood == .confused {
+                            VStack(spacing: 8) {
+                                Text("Hmm, that didn't work.")
+                                    .font(.footnote)
+                                    .foregroundStyle(Theme.muted)
+                                Button("Try again") { Task { await model.retry() } }
+                                    .buttonStyle(PillButtonStyle())
+                            }
+                            .padding(.top, 8)
+                        }
                         Color.clear.frame(height: 1).id(bottom)
                     }
-                    .padding()
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .onChange(of: model.messages.count) { scroll(proxy) }
                 .onChange(of: isThinking) { scroll(proxy) }
+                .onChange(of: model.mood) { scroll(proxy) }
                 .onAppear { proxy.scrollTo(bottom) }
             }
             .background(Theme.cream)
@@ -60,24 +74,39 @@ struct ChatView: View {
         withAnimation(reduceMotion ? nil : .easeOut) { proxy.scrollTo(bottom) }
     }
 
+    private var canSend: Bool {
+        !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isThinking
+    }
+
+    /// The field and send button share one pill: 22pt outer radius = 16pt button radius + 6pt inset.
     private var composer: some View {
-        HStack(spacing: 8) {
+        HStack(alignment: .bottom, spacing: 0) {
             TextField("Ask Basil…", text: $draft, axis: .vertical)
                 .lineLimit(1...4)
                 .focused($typing)
                 .submitLabel(.send)
                 .onSubmit(send)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(Theme.card, in: .rect(cornerRadius: 20))
-            Button("Send", systemImage: "arrow.up.circle.fill", action: send)
-                .labelStyle(.iconOnly)
-                .font(.largeTitle)
-                .foregroundStyle(Theme.green)
-                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isThinking)
+                .padding(.leading, 16)
+                .padding(.vertical, 12)
+            Button(action: send) {
+                Image(systemName: "arrow.up")
+                    .font(.footnote.weight(.bold))
+                    .foregroundStyle(Theme.onGreen)
+                    .frame(width: 32, height: 32)
+                    .background(Theme.green, in: .circle)
+                    .opacity(canSend ? 1 : 0.35)
+                    .frame(width: 44, height: 44)
+                    .contentShape(.rect)
+            }
+            .buttonStyle(SendPressStyle())
+            .disabled(!canSend)
+            .accessibilityLabel("Send")
         }
-        .padding()
-        .background(.bar)
+        .background(Theme.card, in: .rect(cornerRadius: 22, style: .continuous))
+        .overlay { RoundedRectangle(cornerRadius: 22, style: .continuous).strokeBorder(Theme.hairline, lineWidth: 1) }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Theme.cream)
     }
 
     private func send() {
@@ -85,6 +114,18 @@ struct ChatView: View {
         guard !text.isEmpty, !isThinking else { return }
         draft = ""
         Task { await model.ask(text) }
+    }
+}
+
+private struct SendPressStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && isEnabled
+        configuration.label
+            .scaleEffect(pressed && !reduceMotion ? 0.96 : 1)
+            .animation(.easeOut(duration: 0.15), value: pressed)
     }
 }
 
@@ -96,18 +137,22 @@ private struct Bubble: View {
 
     var body: some View {
         HStack {
-            if isUser { Spacer(minLength: 48) }
+            if isUser { Spacer(minLength: 56) }
             Group {
                 if typing { ProgressView().padding(.vertical, 2) } else { Text(message.text) }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .foregroundStyle(isUser ? Theme.card : Theme.ink)
-            .background(isUser ? Theme.green : Theme.card, in: .rect(cornerRadius: 18))
+            .font(.body)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .foregroundStyle(isUser ? Theme.onGreen : Theme.ink)
+            .background(isUser ? Theme.green : Theme.card, in: shape)
+            .overlay { if !isUser { shape.strokeBorder(Theme.hairline, lineWidth: 1) } }
             .accessibilityLabel(typing ? "Basil is thinking" : "\(isUser ? "You" : "Basil"): \(message.text)")
-            if !isUser { Spacer(minLength: 48) }
+            if !isUser { Spacer(minLength: 56) }
         }
     }
+
+    private var shape: RoundedRectangle { RoundedRectangle(cornerRadius: 20, style: .continuous) }
 }
 
 #Preview {
