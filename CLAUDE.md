@@ -43,7 +43,19 @@ The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?
 
 The Linux laptop has Swift 6.3.2 and can't build SwiftUI, which keeps its agent on `YesChefCore` and the docs.
 
-As of 13:05 the Linux laptop is writing the Gemma side in `YesChefCore/Sources/YesChefCore/Gemma/`: a `GemmaClient` for the Gemini API and a `MealPlanner` with `planWeek`, `recipe(for:)`, `askChef` and `recipeFromImage`, plus `SampleData` for previews. The MacBook builds the screens against `SampleData` and doesn't write its own Gemini client. The real calls land on `main` by about 13:40.
+The Gemma side is in `YesChefCore/Sources/YesChefCore/Gemma/`, and the MacBook uses it and doesn't write its own Gemini client. `SampleData` has a fixed household, week plan and recipe for previews and for an offline demo.
+
+```swift
+import YesChefCore
+
+let key = Bundle.main.object(forInfoDictionaryKey: "GEMINI_API_KEY") as? String ?? ""
+let planner = MealPlanner(model: GemmaClient(apiKey: key))
+let plan = try await planner.planWeek(for: household, busyDays: ["Wednesday"], learning: models)
+let recipe = try await planner.recipe(for: plan.days[0].pick, household: household)
+let answer = try await planner.askChef("Is it done?", step: recipe.steps[0], recipe: recipe)
+```
+
+Every call can throw `GemmaError`, and the screen shows Basil's "Confused" mood with a retry when one does.
 
 ## Principles
 
