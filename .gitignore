@@ -4,3 +4,4 @@ DerivedData/
 .build/
 *.xcuserstate
 Secrets.xcconfig
+.claude/settings.local.json
