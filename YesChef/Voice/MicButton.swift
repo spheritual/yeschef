@@ -49,10 +49,11 @@ struct MicButton: View {
                 model.subtitle = text
             }
         } catch {
-            // No permission, no mic (the simulator) or no speech service: typing still works.
+            // Saying why is the only way to tell a permission, a missing mic and a speech service
+            // error apart in the simulator. The chat bubble still takes typed questions.
+            print("[MicButton] \(error.localizedDescription)")
             model.mood = resting.0 == .listening ? .idle : resting.0
-            model.subtitle = "I can't hear you right now. Type your question instead."
-            showChat = true
+            model.subtitle = "I can't hear you. \(error.localizedDescription)"
             return
         }
         spoken = spoken.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -99,7 +100,10 @@ private struct MicPressStyle: ButtonStyle {
 /// Speech recognition on top of `AVAudioEngine`, with permission asked on first use.
 @MainActor @Observable
 private final class Listener {
-    struct Unavailable: Error {}
+    struct Unavailable: LocalizedError {
+        let reason: String
+        var errorDescription: String? { reason }
+    }
 
     private(set) var isListening = false
     private(set) var isStarting = false
@@ -114,9 +118,12 @@ private final class Listener {
     func start() async throws -> AsyncThrowingStream<String, Error> {
         isStarting = true
         defer { isStarting = false }
-        guard await Self.authorized(),
-              let recognizer = SFSpeechRecognizer(locale: .current), recognizer.isAvailable
-        else { throw Unavailable() }
+        guard await Self.authorized() else {
+            throw Unavailable(reason: "Speech recognition or the microphone isn't allowed. Turn both on for YesChef in Settings.")
+        }
+        guard let recognizer = SFSpeechRecognizer(locale: .current), recognizer.isAvailable else {
+            throw Unavailable(reason: "Speech recognition isn't available for \(Locale.current.identifier) right now.")
+        }
 
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.record, mode: .measurement, options: .duckOthers)
@@ -125,7 +132,7 @@ private final class Listener {
         let format = engine.inputNode.outputFormat(forBus: 0)
         guard format.sampleRate > 0, format.channelCount > 0 else {  // no mic
             try? session.setActive(false)
-            throw Unavailable()
+            throw Unavailable(reason: "There's no microphone input. In the Simulator, pick a mic under I/O, then Audio Input, and allow the Simulator to use the microphone in the Mac's Privacy settings.")
         }
 
         let request = SFSpeechAudioBufferRecognitionRequest()
@@ -148,7 +155,7 @@ private final class Listener {
         self.request = request
         isListening = true
         heard = false
-        task = Self.recognize(recognizer, request) { [weak self] text, isFinal, failed in
+        task = Self.recognize(recognizer, request) { [weak self] text, isFinal, problem in
             // A late callback from an earlier session must not touch the current one.
             guard let self, self.request === request else { return }
             if let text {
@@ -156,8 +163,8 @@ private final class Listener {
                 continuation.yield(text)
                 // 2 s after the last word ends the question.
                 if !isFinal { self.restartPauseTimer(after: 2) }
-            } else if failed && !self.heard {
-                continuation.finish(throwing: Unavailable())
+            } else if let problem, !self.heard {
+                continuation.finish(throwing: Unavailable(reason: "Speech recognition stopped: \(problem)"))
             }
             if isFinal { self.stop() }
         }
@@ -213,13 +220,14 @@ private final class Listener {
 
     private nonisolated static func recognize(
         _ recognizer: SFSpeechRecognizer, _ request: SFSpeechAudioBufferRecognitionRequest,
-        handler: @escaping @MainActor (String?, Bool, Bool) -> Void
+        handler: @escaping @MainActor (String?, Bool, String?) -> Void
     ) -> SFSpeechRecognitionTask {
         recognizer.recognitionTask(with: request) { result, error in
             let text = result?.bestTranscription.formattedString
-            let failed = error != nil
-            let isFinal = (result?.isFinal ?? false) || failed
-            Task { @MainActor in handler(text, isFinal, failed) }
+            // Only the message crosses to the main actor, since Error isn't Sendable.
+            let problem = error?.localizedDescription
+            let isFinal = (result?.isFinal ?? false) || problem != nil
+            Task { @MainActor in handler(text, isFinal, problem) }
         }
     }
 }
