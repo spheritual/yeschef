@@ -6,6 +6,8 @@ import SwiftUI
 /// at the screen for a bad one. Reduce Motion freezes the movement but keeps the props.
 struct BasilView: View {
     let mood: BasilMood
+    /// The asset name of the outfit he's wearing, from the wardrobe.
+    var outfit = "Basil"
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -23,7 +25,7 @@ struct BasilView: View {
                     WallClock(t: t)
                         .offset(x: 50, y: -55)
                 }
-                BasilFigure(mood: mood)
+                BasilFigure(mood: mood, outfit: outfit)
                     .modifier(BasilMotion(mood: mood, t: t, reduceMotion: reduceMotion))
                 BasilProps(mood: mood, t: t)
             }
@@ -156,9 +158,10 @@ private struct WallClock: View {
 /// Basil's art, exported from the Figma proposal (node 9:22). Confusion shows as a tilt and a "?".
 private struct BasilFigure: View {
     let mood: BasilMood
+    let outfit: String
 
     var body: some View {
-        Image("Basil")
+        Image(outfit)
             .resizable()
             .scaledToFit()
             .overlay(alignment: .topTrailing) {

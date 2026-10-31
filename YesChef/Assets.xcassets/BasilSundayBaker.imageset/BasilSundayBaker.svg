@@ -1,0 +1,38 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="75" height="84.375" viewBox="0 0 75 84.375" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Basil the chef">
+<ellipse id="Ground" cx="38.2031" cy="80.1562" rx="24.1406" ry="2.34375" fill="#263B2E" fill-opacity="0.0705882"/>
+<ellipse id="Shoe" cx="47.3438" cy="77.3438" rx="6.5625" ry="3.75" fill="#263B2E"/>
+<ellipse id="Shoe_2" cx="29.0625" cy="77.3438" rx="6.5625" ry="3.75" fill="#263B2E"/>
+<rect id="Chef coat" x="14.8828" y="45.8203" width="45.2344" height="29.7656" rx="9.96094" fill="#FFFEF8" stroke="#263B2E" stroke-width="0.703125"/>
+<rect id="Spoon handle" x="60.9375" y="36.5625" width="1.87501" height="20.1563" rx="0.937503" transform="rotate(15 60.9375 36.5625)" fill="#A17143"/>
+<ellipse id="Spoon bowl" cx="60.8974" cy="36.7673" rx="3.28125" ry="5.15625" transform="rotate(15 60.8974 36.7673)" fill="#C29465"/>
+<path id="Hand" d="M60.7031 48.5859C63.4999 48.5859 65.7891 50.9556 65.7891 53.9062C65.7891 56.8569 63.4999 59.2266 60.7031 59.2266C57.9063 59.2266 55.6172 56.8569 55.6172 53.9062C55.6172 50.9556 57.9063 48.5859 60.7031 48.5859Z" fill="#F0C59F" stroke="#263B2E" stroke-width="0.609375"/>
+<path id="Hand_2" d="M14.7656 52.3359C17.5624 52.3359 19.8516 54.7056 19.8516 57.6562C19.8516 60.6069 17.5624 62.9766 14.7656 62.9766C11.9688 62.9766 9.67969 60.6069 9.67969 57.6562C9.67969 54.7056 11.9688 52.3359 14.7656 52.3359Z" fill="#F0C59F" stroke="#263B2E" stroke-width="0.609375"/>
+<path id="Apron" d="M22.0312 54.375C22.0312 52.3039 23.7102 50.625 25.7813 50.625H49.2187C51.2898 50.625 52.9688 52.3039 52.9688 54.375V69.375C52.9688 73.2583 49.8208 76.4062 45.9375 76.4062H29.0625C25.1792 76.4062 22.0312 73.2583 22.0312 69.375V54.375Z" fill="#79918B"/>
+<rect id="Apron stripe" x="49.2188" y="53.4375" width="1.40625" height="19.6875" rx="0.703125" fill="white" fill-opacity="0.396078"/>
+<rect id="Apron stripe_2" x="44.5312" y="53.4375" width="1.40625" height="19.6875" rx="0.703125" fill="white" fill-opacity="0.396078"/>
+<rect id="Apron stripe_3" x="39.8438" y="53.4375" width="1.40625" height="19.6875" rx="0.703125" fill="white" fill-opacity="0.396078"/>
+<rect id="Apron stripe_4" x="35.1562" y="53.4375" width="1.40625" height="19.6875" rx="0.703125" fill="white" fill-opacity="0.396078"/>
+<rect id="Apron stripe_5" x="30.4688" y="53.4375" width="1.40625" height="19.6875" rx="0.703125" fill="white" fill-opacity="0.396078"/>
+<rect id="Apron stripe_6" x="25.7812" y="53.4375" width="1.40625" height="19.6875" rx="0.703125" fill="white" fill-opacity="0.396078"/>
+<g id="Apron pocket">
+<path d="M30 65.6875C30 65.1352 30.4477 64.6875 31 64.6875H44C44.5523 64.6875 45 65.1352 45 65.6875V67.9688C45 70.2987 43.1112 72.1875 40.7812 72.1875H34.2188C31.8888 72.1875 30 70.2987 30 67.9688V65.6875Z" fill="white" fill-opacity="0.152941"/>
+<path d="M31 64.9219H44C44.4228 64.9219 44.7656 65.2647 44.7656 65.6875V67.9688C44.7656 70.1693 42.9818 71.9531 40.7812 71.9531H34.2188C32.0182 71.9531 30.2344 70.1693 30.2344 67.9688V65.6875C30.2344 65.291 30.5357 64.9649 30.9219 64.9258L31 64.9219Z" stroke="white" stroke-opacity="0.396078" stroke-width="0.46875"/>
+</g>
+<ellipse id="Ear" cx="54.375" cy="35.8594" rx="4.21875" ry="5.39062" fill="#F0C59F"/>
+<ellipse id="Ear_2" cx="20.625" cy="35.8594" rx="4.21875" ry="5.39062" fill="#F0C59F"/>
+<rect id="Face" x="20.4844" y="18.6094" width="34.0312" height="29.8125" rx="13.7344" fill="#F0C59F" stroke="#263B2E" stroke-width="0.65625"/>
+<ellipse id="Cheek" cx="48.9844" cy="38.4375" rx="3.51562" ry="1.875" fill="#D98C6B" fill-opacity="0.396078"/>
+<ellipse id="Cheek_2" cx="26.4844" cy="38.4375" rx="3.51562" ry="1.875" fill="#D98C6B" fill-opacity="0.396078"/>
+<ellipse id="Eye" cx="45.2344" cy="33.0469" rx="1.17188" ry="1.64062" fill="#263B2E"/>
+<ellipse id="Eye_2" cx="29.7656" cy="33.0469" rx="1.17188" ry="1.64062" fill="#263B2E"/>
+<ellipse id="Nose" cx="37.5" cy="36.3281" rx="1.875" ry="2.10938" fill="#DE9F79"/>
+<path id="Smile" d="M32.3438 40.3125C35.7664 45.3125 39.3601 45.3125 43.125 40.3125" stroke="#263B2E" stroke-width="0.84375"/>
+<circle id="Hat puff" cx="49.4531" cy="15.7031" r="8.34375" fill="#FFFEF8" stroke="#263B2E" stroke-width="0.65625"/>
+<path id="Hat puff_2" d="M26.7188 6.42188C31.7231 6.42188 35.7656 10.3751 35.7656 15.2344C35.7656 20.0936 31.7231 24.0469 26.7188 24.0469C21.7144 24.0469 17.6719 20.0936 17.6719 15.2344C17.6719 10.3751 21.7144 6.42188 26.7188 6.42188Z" fill="#FFFEF8" stroke="#263B2E" stroke-width="0.65625"/>
+<path id="Hat puff_3" d="M38.2031 1.73438C43.5674 1.73438 47.9531 6.3932 47.9531 12.1875C47.9531 17.9818 43.5674 22.6406 38.2031 22.6406C32.8388 22.6406 28.4531 17.9818 28.4531 12.1875C28.4531 6.3932 32.8388 1.73438 38.2031 1.73438Z" fill="#FFFEF8" stroke="#263B2E" stroke-width="0.65625"/>
+<rect id="Hat band" x="20.9531" y="17.2031" width="33.5625" height="9.1875" rx="2.48438" fill="#FFFEF8" stroke="#263B2E" stroke-width="0.65625"/>
+<rect id="Neckerchief" x="30" y="46.875" width="15" height="4.21875" rx="1.875" fill="#BC5039"/>
+<ellipse id="Scarf knot" cx="37.7344" cy="51.3281" rx="2.10938" ry="3.04688" fill="#BC5039"/>
+</g>
+</svg>

@@ -29,6 +29,9 @@ final class AppModel {
     /// closing the page and restarting the app. It's the one thing the demo saves.
     var shopping = ShoppingList.load(from: AppModel.shoppingFile) ?? ShoppingList(plan: SampleData.weekPlan)
     private static let shoppingFile = URL.documentsDirectory.appending(path: "shopping-list.json")
+    /// Leaves and the streak, saved after every change like the shopping list (BR-18, TR-23).
+    var points = PointsLog.load(from: AppModel.pointsFile) ?? PointsLog()
+    private static let pointsFile = URL.documentsDirectory.appending(path: "points.json")
     private(set) var recipe: RecipeDetail?
     /// The idea the open recipe came from, which carries the features feedback learns from.
     private(set) var recipeIdea: DinnerIdea?
@@ -57,6 +60,7 @@ final class AppModel {
                 busyDays: self.busyDays, learning: Array(self.learning.values))
             self.shopping.sync(with: self.plan)
             self.saveShopping()
+            self.award(.planned)
             return "Here's your week. Tap a dinner to see the recipe."
         }
     }
@@ -81,6 +85,7 @@ final class AppModel {
         await run("Reading your recipe…", teaching: true, retry: { [weak self] in await self?.importRecipe(from: image, mimeType: mimeType) }) {
             let recipe = try await planner.recipeFromImage(image, mimeType: mimeType, household: self.household)
             self.recipe = recipe
+            self.award(.imported)
             return "Got it: \(recipe.title). Tap Start cooking when you're ready."
         }
     }
@@ -93,6 +98,7 @@ final class AppModel {
             // When the cook decides on something else for a day, Basil's reply carries the change.
             let reply = try await planner.reply(to: question, plan: self.plan, household: self.household, step: step, recipe: self.recipe)
             if let change = reply.change { self.apply(change) }
+            self.award(.asked)
             return reply.answer
         }
     }
@@ -119,6 +125,11 @@ final class AppModel {
         for member in household.members {
             learning[member.name, default: PreferenceModel()].record(signal, for: features)
         }
+        switch signal {
+        case .rated: award(.rated)
+        case .cooked: award(.cooked)
+        default: break
+        }
         // Basil reacts to a rating: a spit at the screen for a bad one, sparkles for a great one.
         if case .rated(let stars) = signal {
             if stars <= 2 {
@@ -127,6 +138,23 @@ final class AppModel {
                 say("Mmm, that hit the spot! I'll remember it.", mood: .yum)
             }
         }
+    }
+
+    /// Adds leaves for something the cook did and saves the log.
+    private func award(_ action: PointsLog.Action) {
+        points.record(action)
+        try? points.save(to: Self.pointsFile)
+    }
+
+    /// Buys an outfit with leaves, or puts on one Basil already owns.
+    func dressBasil(in outfit: PointsLog.Outfit) {
+        if points.owned.contains(outfit.id) {
+            points.wear(outfit)
+        } else if !points.buy(outfit) {
+            return say("I need \(outfit.cost - points.balance) more leaves for that one.")
+        }
+        try? points.save(to: Self.pointsFile)
+        say("How do I look in my \(outfit.name.lowercased())?", mood: .yum)
     }
 
     /// Writes the shopping list to its file. A failed write only loses the checks since the last

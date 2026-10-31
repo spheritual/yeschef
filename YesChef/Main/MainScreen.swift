@@ -126,11 +126,12 @@ struct MainScreen: View {
 private struct BasilStage: View {
     @Environment(AppModel.self) private var model
     @Binding var menuOpen: Bool
+    @State private var showWardrobe = false
 
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                BasilView(mood: model.mood)
+                BasilView(mood: model.mood, outfit: model.points.wearing)
                 if model.mood == .cooking {
                     // Mirrored, which points the handle back toward Basil's hand.
                     Image("PanWithSteam")
@@ -142,15 +143,25 @@ private struct BasilStage: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .padding(.leading, 16)
                     .padding(.top, 6)
-                if model.isOffline {
-                    Text("Offline")
-                        .font(.caption2.weight(.semibold)).foregroundStyle(Theme.green)
-                        .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(Theme.card, in: .capsule)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                        .padding(.trailing, 16)
-                        .padding(.top, 16)
+                VStack(alignment: .trailing, spacing: 6) {
+                    // The streak and leaves chip from the Figma proposal opens the wardrobe.
+                    Button { showWardrobe = true } label: {
+                        Text("\(model.points.streak())-day streak, \(model.points.balance) leaves")
+                            .font(.caption2.weight(.semibold)).foregroundStyle(Theme.green)
+                            .padding(.horizontal, 12).padding(.vertical, 8)
+                            .background(Theme.card, in: .capsule)
+                    }
+                    .accessibilityHint("Opens Basil's wardrobe")
+                    if model.isOffline {
+                        Text("Offline")
+                            .font(.caption2.weight(.semibold)).foregroundStyle(Theme.green)
+                            .padding(.horizontal, 12).padding(.vertical, 8)
+                            .background(Theme.card, in: .capsule)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .padding(.trailing, 16)
+                .padding(.top, 16)
             }
             .frame(height: 163)
             Capsule().fill(Theme.counter).frame(height: 14)
@@ -165,6 +176,7 @@ private struct BasilStage: View {
                 .fill(Theme.stage)
                 .ignoresSafeArea(edges: .top)
         }
+        .sheet(isPresented: $showWardrobe) { WardrobeView() }
     }
 }
 
@@ -216,6 +228,10 @@ private struct RecipeCard: View {
             Text("\(recipe.minutes) min, serves \(recipe.servings)")
                 .font(.caption).foregroundStyle(Theme.muted)
             SourceLine(source: source)
+            if let nutrition = recipe.nutrition?.summary {
+                Text("\(nutrition) per serving, Gemma's estimate")
+                    .font(.caption).foregroundStyle(Theme.muted)
+            }
             VStack(alignment: .leading, spacing: 4) {
                 Text("Ingredients").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
                 ForEach(recipe.ingredients, id: \.name) { item in

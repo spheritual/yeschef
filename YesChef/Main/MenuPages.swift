@@ -118,6 +118,7 @@ struct HouseholdPage: View {
                         if !member.likes.isEmpty { Text("Likes \(member.likes.formatted())").font(.footnote) }
                         if !member.avoid.isEmpty { Text("Avoids \(member.avoid.formatted())").font(.footnote) }
                         if let diet = member.diet { Text(diet.capitalized).font(.footnote) }
+                        if !member.goals.isEmpty { Text("Goals: \(member.goals.formatted())").font(.footnote) }
                     }
                     .foregroundStyle(Theme.ink)
                     .listRowBackground(Theme.card)
