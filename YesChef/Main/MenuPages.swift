@@ -32,7 +32,7 @@ struct RecipesPage: View {
                     dismiss()
                     Task { await model.open(day.pick) }
                 } label: {
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(day.pick.title).font(.heading(.headline)).foregroundStyle(Theme.ink)
                         Text(day.pick.summary).font(.footnote).foregroundStyle(Theme.muted)
                     }
@@ -106,6 +106,11 @@ struct ShoppingListPage: View {
 }
 
 struct HouseholdPage: View {
+    private func detail(_ label: String, _ value: String) -> some View {
+        (Text(label + " ").foregroundStyle(Theme.muted) + Text(value).foregroundStyle(Theme.ink))
+            .font(.footnote)
+    }
+
     @Environment(AppModel.self) private var model
 
     var body: some View {
@@ -113,19 +118,27 @@ struct HouseholdPage: View {
             List {
                 ForEach(model.household.members) { member in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(member.name).font(.heading(.headline)).foregroundStyle(Theme.ink)
-                        Text(member.cookingSkill.capitalized).font(.footnote).foregroundStyle(Theme.muted)
-                        if !member.likes.isEmpty { Text("Likes \(member.likes.formatted())").font(.footnote) }
-                        if !member.avoid.isEmpty { Text("Avoids \(member.avoid.formatted())").font(.footnote) }
-                        if let diet = member.diet { Text(diet.capitalized).font(.footnote) }
-                        if !member.goals.isEmpty { Text("Goals: \(member.goals.formatted())").font(.footnote) }
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(member.name).font(.heading(.headline)).foregroundStyle(Theme.ink)
+                            Spacer()
+                            Text(member.cookingSkill.capitalized).font(.footnote).foregroundStyle(Theme.muted)
+                        }
+                        if !member.likes.isEmpty { detail("Likes", member.likes.formatted()) }
+                        if !member.avoid.isEmpty { detail("Avoids", member.avoid.formatted()) }
+                        if let diet = member.diet { detail("Diet", diet.capitalized) }
+                        if !member.goals.isEmpty { detail("Goals", member.goals.formatted()) }
                     }
-                    .foregroundStyle(Theme.ink)
+                    .padding(.vertical, 4)
+                    .accessibilityElement(children: .combine)
                     .listRowBackground(Theme.card)
                 }
                 if let budget = model.household.weeklyBudget {
-                    Text("Weekly budget: \(budget.formatted(.currency(code: "USD").precision(.fractionLength(0))))")
+                    LabeledContent("Weekly budget", value: budget.formatted(.currency(code: "USD").precision(.fractionLength(0))))
+                        .foregroundStyle(Theme.ink)
                         .listRowBackground(Theme.card)
+                }
+                Section {} footer: {
+                    Text("Basil plans around these. Editing comes later.")
                 }
             }
         }
@@ -142,7 +155,7 @@ struct SettingsPage: View {
                     .listRowBackground(Theme.card)
                 LabeledContent("Basil's brain", value: model.isOffline ? "Offline sample data" : "Gemma 4")
                     .listRowBackground(Theme.card)
-                LabeledContent("Busy days", value: model.busyDays.sorted().formatted())
+                LabeledContent("Busy days", value: model.busyDays.isEmpty ? "None" : model.busyDays.sorted().formatted())
                     .listRowBackground(Theme.card)
             }
         }

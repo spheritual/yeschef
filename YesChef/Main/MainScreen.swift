@@ -68,13 +68,13 @@ struct MainScreen: View {
         Button { showChat = true } label: {
             Image(systemName: "bubble.left.fill")
                 .font(.title2)
-                .foregroundStyle(Theme.card)
-                .frame(width: 60, height: 60)
+                .foregroundStyle(Theme.onGreen)
+                .frame(width: 56, height: 56)
                 .background(Theme.green, in: .circle)
-                .shadow(color: Theme.ink.opacity(0.25), radius: 6, y: 4)
+                .shadow(color: .black.opacity(0.18), radius: 8, y: 4)
         }
         .padding(.trailing, 20)
-        .padding(.bottom, 12)
+        .padding(.bottom, 16)
         .accessibilityLabel("Chat with Basil")
     }
 
@@ -83,17 +83,17 @@ struct MainScreen: View {
     private var output: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let recipe = model.recipe {
-                Text("Up next").font(.heading(.title2)).foregroundStyle(Theme.ink)
+                Text("Up next").font(.heading(.title3)).foregroundStyle(Theme.ink)
                 RecipeCard(recipe: recipe, eyebrow: eyebrow, source: model.recipeIdea?.source) { showCook = true }
             }
             HStack {
                 Text("This week").font(.heading(.title3)).foregroundStyle(Theme.ink)
                     .id("week")
                 Spacer()
-                Button("Plan my week") { Task { await model.planWeek() } }
+                Button("Plan dinners") { Task { await model.planWeek() } }
                     .buttonStyle(PillButtonStyle())
             }
-            .padding(.top, 6)
+            .padding(.top, 12)
             ForEach(model.plan.days) { day in
                 DayCard(day: day, isOpen: day.pick == model.recipeIdea) {
                     Task { await model.open(day.pick) }
@@ -147,14 +147,14 @@ private struct BasilStage: View {
                     // The streak and leaves chip from the Figma proposal opens the wardrobe.
                     Button { showWardrobe = true } label: {
                         Text("\(model.points.streak())-day streak, \(model.points.balance) leaves")
-                            .font(.caption2.weight(.semibold)).foregroundStyle(Theme.green)
+                            .font(.caption.weight(.semibold)).foregroundStyle(Theme.green)
                             .padding(.horizontal, 12).padding(.vertical, 8)
                             .background(Theme.card, in: .capsule)
                     }
                     .accessibilityHint("Opens Basil's wardrobe")
                     if model.isOffline {
                         Text("Offline")
-                            .font(.caption2.weight(.semibold)).foregroundStyle(Theme.green)
+                            .font(.caption.weight(.semibold)).foregroundStyle(Theme.muted)
                             .padding(.horizontal, 12).padding(.vertical, 8)
                             .background(Theme.card, in: .capsule)
                     }
@@ -172,7 +172,7 @@ private struct BasilStage: View {
                 .padding(.bottom, 24)
         }
         .background {
-            UnevenRoundedRectangle(bottomLeadingRadius: 32, bottomTrailingRadius: 32)
+            UnevenRoundedRectangle(bottomLeadingRadius: 32, bottomTrailingRadius: 32, style: .continuous)
                 .fill(Theme.stage)
                 .ignoresSafeArea(edges: .top)
         }
@@ -200,15 +200,14 @@ private struct SubtitleBar: View {
             }
             MicButton()
                 .tint(Theme.green)
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
                 .background(Theme.stage, in: .circle)
         }
         .padding(.leading, 16)
         .padding(.trailing, 8)
-        .padding(.vertical, 10)
+        .padding(.vertical, 8)
         .frame(minHeight: 60)
-        .background(Theme.card, in: .rect(cornerRadius: 22))
-        .overlay(RoundedRectangle(cornerRadius: 22).stroke(Theme.green, lineWidth: 1.5))
+        .cardBackground(radius: 24)
         .accessibilityElement(children: .contain)
     }
 }
@@ -226,13 +225,13 @@ private struct RecipeCard: View {
             Text(eyebrow).eyebrow()
             Text(recipe.title).font(.heading(.title3)).foregroundStyle(Theme.ink)
             Text("\(recipe.minutes) min, serves \(recipe.servings)")
-                .font(.caption).foregroundStyle(Theme.muted)
+                .font(.footnote).foregroundStyle(Theme.muted)
             SourceLine(source: source)
             if let nutrition = recipe.nutrition?.summary {
                 Text("\(nutrition) per serving, Gemma's estimate")
                     .font(.caption).foregroundStyle(Theme.muted)
             }
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("Ingredients").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
                 ForEach(recipe.ingredients, id: \.name) { item in
                     HStack(alignment: .firstTextBaseline) {
@@ -246,14 +245,14 @@ private struct RecipeCard: View {
                     .accessibilityElement(children: .combine)
                 }
             }
-            .padding(.top, 10)
+            .padding(.top, 12)
             Button("Start cooking with Basil", action: start)
                 .buttonStyle(PillButtonStyle())
-                .padding(.top, 12)
+                .padding(.top, 16)
         }
-        .padding(16)
+        .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .cardBackground()
+        .cardBackground(radius: 24)
     }
 }
 
@@ -264,25 +263,28 @@ private struct DayCard: View {
 
     var body: some View {
         Button(action: open) {
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(day.day.uppercased()).eyebrow()
                     if day.isBusy {
                         Text("BUSY").font(.caption2.bold()).foregroundStyle(Theme.tomato)
                     }
                     Spacer()
-                    Text("\(day.pick.features.minutes) min").font(.caption).foregroundStyle(Theme.muted)
+                    Text("\(day.pick.features.minutes) min").font(.footnote).foregroundStyle(Theme.muted)
                 }
                 Text(day.pick.title).font(.heading(.headline)).foregroundStyle(Theme.ink)
                 Text(day.pick.summary).font(.footnote).foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.leading)
                 SourceLine(source: day.pick.source)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .cardBackground(radius: 16)
-            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Theme.green, lineWidth: isOpen ? 1.5 : 0))
+            .cardBackground(radius: 20)
+            .overlay {
+                if isOpen {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Theme.green, lineWidth: 1.5)
+                }
+            }
         }
         .buttonStyle(.plain)
         .accessibilityHint("Opens the recipe")
@@ -295,8 +297,8 @@ private struct SourceLine: View {
 
     var body: some View {
         if let source {
-            Text("Adapted from \(source) (Project Gutenberg)")
-                .font(.caption2).foregroundStyle(Theme.muted)
+            Text("Adapted from \(source)")
+                .font(.caption).italic().foregroundStyle(Theme.muted)
                 .multilineTextAlignment(.leading)
         }
     }
