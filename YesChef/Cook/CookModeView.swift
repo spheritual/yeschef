@@ -23,14 +23,19 @@ struct CookModeView: View {
                                            description: Text("Pick a dinner first."))
                 }
             }
+            .background(Theme.cream.ignoresSafeArea())
             .navigationTitle(model.recipe?.title ?? "Cooking")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(model.recipe?.title ?? "Cooking").font(.heading(.headline)).foregroundStyle(Theme.ink)
+                }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close", systemImage: "xmark") { close() }
                 }
             }
         }
+        .tint(Theme.green)
         .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
@@ -47,16 +52,18 @@ struct CookModeView: View {
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 ProgressView(value: Double(index + 1), total: Double(recipe.steps.count))
+                    .tint(Theme.green)
                     .accessibilityLabel("Progress")
                     .accessibilityValue("Step \(index + 1) of \(recipe.steps.count)")
                 Text("Step \(index + 1) of \(recipe.steps.count)")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                 Text(step.instruction)
-                    .font(.title2.weight(.semibold))
+                    .font(.heading(.title2))
+                    .foregroundStyle(Theme.ink)
                 Label(step.technique, systemImage: "lightbulb")
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
                 if let seconds = step.timerSeconds {
                     timer(seconds: seconds)
                 }
@@ -65,16 +72,17 @@ struct CookModeView: View {
                 HStack {
                     Button("Back") { index -= 1 }
                         .disabled(index == 0)
+                        .foregroundStyle(Theme.green)
                     Spacer()
                     if isLast {
                         Button("Done") { finish() }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(PillButtonStyle())
                     } else {
                         Button("Next") { index += 1 }
-                            .buttonStyle(.borderedProminent)
+                            .buttonStyle(PillButtonStyle())
                     }
                 }
-                .controlSize(.large)
+                .font(.body)
             }
             .padding()
         }
@@ -88,6 +96,7 @@ struct CookModeView: View {
             if let end = timerEnds[index] {
                 Text(timerInterval: Date.now...max(end, .now), countsDown: true)
                     .font(.largeTitle.monospacedDigit())
+                    .foregroundStyle(Theme.ink)
                 Spacer()
                 Button("Cancel timer") {
                     timerEnds[index] = nil
@@ -98,7 +107,7 @@ struct CookModeView: View {
                 Button("Start \(Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))) timer", systemImage: "timer") {
                     startTimer(seconds: seconds)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(PillButtonStyle())
             }
         }
     }
@@ -132,16 +141,18 @@ struct CookModeView: View {
 
     private func askBasil(_ step: RecipeDetail.Step) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Ask Basil").font(.headline)
+            Text("Ask Basil").font(.heading(.headline)).foregroundStyle(Theme.ink)
             HStack {
                 TextField("Is it done?", text: $question)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(10)
+                    .cardBackground(radius: 12)
                     .submitLabel(.send)
                     .onSubmit { send(step) }
                 Button("Ask", systemImage: "paperplane.fill") { send(step) }
                     .labelStyle(.iconOnly)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PillButtonStyle())
                     .disabled(question.trimmingCharacters(in: .whitespaces).isEmpty || model.mood == .cooking)
+                    .opacity(question.trimmingCharacters(in: .whitespaces).isEmpty || model.mood == .cooking ? 0.4 : 1)
             }
             HStack(alignment: .top) {
                 if model.mood == .cooking {
@@ -149,11 +160,11 @@ struct CookModeView: View {
                 }
                 Text(model.subtitle)
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
             }
             if model.mood == .confused {
                 Button("Try again") { Task { await model.retry() } }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(PillButtonStyle())
             }
         }
     }
@@ -192,10 +203,10 @@ private struct RatingSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("How was \(model.recipe?.title ?? "dinner")?") {
+                Section {
                     ForEach(model.household.members) { member in
                         HStack {
-                            Text(member.name)
+                            Text(member.name).foregroundStyle(Theme.ink)
                             Spacer()
                             HStack(spacing: 4) {
                                 ForEach(1...5, id: \.self) { n in
@@ -203,7 +214,7 @@ private struct RatingSheet: View {
                                         stars[member.name] = n
                                     } label: {
                                         Image(systemName: n <= (stars[member.name] ?? 0) ? "star.fill" : "star")
-                                            .foregroundStyle(.yellow)
+                                            .foregroundStyle(Theme.cheese)
                                             .frame(minWidth: 28, minHeight: 44)
                                     }
                                     .buttonStyle(.plain)
@@ -211,9 +222,15 @@ private struct RatingSheet: View {
                                 }
                             }
                         }
+                        .listRowBackground(Theme.card)
                     }
+                } header: {
+                    Text("How was \(model.recipe?.title ?? "dinner")?")
+                        .font(.heading(.headline)).foregroundStyle(Theme.ink).textCase(nil)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Theme.cream)
             .navigationTitle("Rate dinner")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -226,6 +243,7 @@ private struct RatingSheet: View {
                 }
             }
         }
+        .tint(Theme.green)
         .presentationDetents([.medium])
     }
 

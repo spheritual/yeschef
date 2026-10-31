@@ -29,21 +29,22 @@ struct LearningCard: View {
 
         VStack(alignment: .leading, spacing: 8) {
             Text("Basil is learning you")
-                .font(.headline)
+                .font(.heading(.headline))
+                .foregroundStyle(Theme.ink)
             if model.learning.isEmpty {
                 Text("Basil learns as you rate meals.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
             }
             Chart {
                 ForEach(rows) { row in
                     BarMark(x: .value("Preference", row.weight), y: .value("Feature", row.label), height: .ratio(0.3))
-                        .foregroundStyle(row.weight >= 0 ? Color.green : Color.orange)
+                        .foregroundStyle(row.weight >= 0 ? Theme.green : Theme.tomato)
                         .accessibilityLabel(row.label)
                         .accessibilityValue(row.weight >= 0 ? "more of this" : "less of this")
                 }
                 RuleMark(x: .value("Neutral", 0))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.muted)
             }
             .chartXScale(domain: -limit...limit)
             .chartXAxis(.hidden)
@@ -56,7 +57,7 @@ struct LearningCard: View {
                             if let y = proxy.position(forY: row.label) {
                                 Text(row.label)
                                     .font(.caption2)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(Theme.muted)
                                     .frame(width: frame.width, alignment: .leading)
                                     .position(x: frame.minX + frame.width / 2, y: frame.minY + y - rowHeight * 0.33)
                             }
@@ -71,11 +72,11 @@ struct LearningCard: View {
                 Text("more of this →")
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(Theme.muted)
             .accessibilityHidden(true)
         }
         .padding()
-        .background(.background.secondary, in: RoundedRectangle(cornerRadius: 16))
+        .cardBackground()
     }
 }
 
