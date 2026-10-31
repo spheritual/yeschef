@@ -55,10 +55,10 @@ GEMINI_API_KEY=your-key-here swift run yeschef-demo
 
 The app needs Xcode on a Mac.
 
-1. Create `Secrets.xcconfig` next to the Xcode project with the line
-   `GEMINI_API_KEY = your-key-here`, using a key from <https://aistudio.google.com/apikey>. The
-   file is gitignored.
-2. Open the Xcode project and run the `YesChef` scheme in an iPhone simulator.
+1. Create `Config/Secrets.xcconfig` with the line `GEMINI_API_KEY = your-key-here`, using a key
+   from <https://aistudio.google.com/apikey>. The file is gitignored. Without it the app still
+   builds and runs on its saved sample plan.
+2. Open `YesChef.xcodeproj` and run the `YesChef` scheme in an iPhone simulator.
 
 A key built into an app can be pulled out of it, which is fine for a demo. A real release would
 need a small server that holds the key.
@@ -80,6 +80,13 @@ The app adds no third-party Swift packages.
 - `.plans/`: the coding checklist and the feedback learning spec
 - `.claude/` and `.mcp.json`: the coding-agent skills and the Figma MCP server the team used
   while building
+
+## AI tools we used
+
+- Gemma 4, through the Gemini API, inside the app: it plans the week, writes the recipes, reads
+  recipe photos and answers cooking questions.
+- Claude Code, to write the code: Claude agents on the MacBook and the Linux laptop wrote the
+  Swift, with Figma's MCP server for the designs.
 
 ## License
 
