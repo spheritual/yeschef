@@ -650,13 +650,13 @@
             <mxPoint x="135.0" y="872" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="c28" value="alt: reply isn't JSON, ask once more" style="shape=umlFrame;html=1;whiteSpace=wrap;width=150;height=24;fillColor=none;strokeColor=#73796B;fontColor=#263B2E;fontSize=11;align=left;spacingLeft=6;" vertex="1" parent="1">
-          <mxGeometry x="620.0" y="370" width="550.0" height="185" as="geometry" />
+        <mxCell id="c28" value="alt: retry once if not JSON" style="shape=umlFrame;html=1;whiteSpace=wrap;width=190;height=24;fillColor=none;strokeColor=#73796B;fontColor=#263B2E;fontSize=11;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="620.0" y="366" width="550.0" height="189" as="geometry" />
         </mxCell>
         <mxCell id="c29" value="If the reply still isn't JSON after one retry, or no idea is safe, AppModel sets mood = confused and offers a retry." style="shape=note;size=14;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#FFF7DD;strokeColor=#C9A43A;fontColor=#263B2E;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="40" y="915" width="760" height="70" as="geometry" />
         </mxCell>
-        <mxCell id="c30" value="Before step 5, MealPlanner searches the bundled Gutenberg cookbooks for the household's tastes, drops passages that name a banned ingredient, and puts the best six in the prompt with their books. Gemma names the book in each idea it based on one." style="shape=note;size=14;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#FFF7DD;strokeColor=#C9A43A;fontColor=#263B2E;fontSize=12;" vertex="1" parent="1">
+        <mxCell id="c30" value="Before it calls GemmaClient, MealPlanner searches the bundled Gutenberg cookbooks for the household's tastes, drops passages that name a banned ingredient, and puts the best six in the prompt with their books. Gemma names the book in each idea it based on one." style="shape=note;size=14;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#FFF7DD;strokeColor=#C9A43A;fontColor=#263B2E;fontSize=12;" vertex="1" parent="1">
           <mxGeometry x="820" y="915" width="780" height="70" as="geometry" />
         </mxCell>
       </root>

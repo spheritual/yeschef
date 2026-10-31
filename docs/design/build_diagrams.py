@@ -33,7 +33,7 @@ STYLES={
     "note":f"shape=note;size=14;html=1;whiteSpace=wrap;align=left;verticalAlign=top;spacingLeft=8;spacingTop=4;fillColor=#FFF7DD;strokeColor=#C9A43A;fontColor={INK};fontSize=12;",
     "class":f"html=1;whiteSpace=wrap;verticalAlign=top;align=left;overflow=fill;fontSize=12;fillColor={CARD};strokeColor={GREEN};fontColor={INK};",
     "lifeline":f"shape=umlLifeline;perimeter=lifelinePerimeter;html=1;whiteSpace=wrap;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;size=46;fillColor={CARD};strokeColor={GREEN};fontColor={INK};fontSize=12;",
-    "frame":f"shape=umlFrame;html=1;whiteSpace=wrap;width=150;height=24;fillColor=none;strokeColor={MUTED};fontColor={INK};fontSize=11;align=left;spacingLeft=6;",
+    "frame":f"shape=umlFrame;html=1;whiteSpace=wrap;width=190;height=24;fillColor=none;strokeColor={MUTED};fontColor={INK};fontSize=11;align=left;spacingLeft=6;",
     "state":BASE+f"rounded=1;arcSize=40;fillColor={CARD};",
     "start":f"ellipse;html=1;fillColor={INK};strokeColor={INK};",
     "end":f"ellipse;html=1;fillColor={INK};strokeColor={CARD};strokeWidth=4;",
@@ -277,9 +277,9 @@ for a,b,t,k in [("Home cook","MainScreen","taps Plan my week","message"),("MainS
     p.msg(x[a],x[b],y,t,k)
     y+=48
 #messages 5 to 8 (y 392 to 536) are the Gemma round trip that gets one retry
-p.box(x["MealPlanner"]-85,370,x["Gemini API"]-x["MealPlanner"]+170,185,"alt: reply isn't JSON, ask once more","frame")
+p.box(x["MealPlanner"]-85,366,x["Gemini API"]-x["MealPlanner"]+170,189,"alt: retry once if not JSON","frame")
 p.box(40,915,760,70,"If the reply still isn't JSON after one retry, or no idea is safe, AppModel sets mood = confused and offers a retry.","note")
-p.box(820,915,780,70,"Before step 5, MealPlanner searches the bundled Gutenberg cookbooks for the household's tastes, drops passages that name a banned ingredient, and puts the best six in the prompt with their books. Gemma names the book in each idea it based on one.","note")
+p.box(820,915,780,70,"Before it calls GemmaClient, MealPlanner searches the bundled Gutenberg cookbooks for the household's tastes, drops passages that name a banned ingredient, and puts the best six in the prompt with their books. Gemma names the book in each idea it based on one.","note")
 pages.append(p)
 
 #7 sequence: cook, ask and rate
