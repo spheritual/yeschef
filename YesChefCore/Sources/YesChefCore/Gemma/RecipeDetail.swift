@@ -4,6 +4,8 @@ public struct RecipeDetail: Codable, Sendable, Hashable {
     public var minutes: Int
     public var ingredients: [Ingredient]
     public var steps: [Step]
+    // Gemma's per-serving estimate, nil when it didn't give one.
+    public var nutrition: Nutrition?
 
     public struct Ingredient: Codable, Sendable, Hashable {
         public var name: String
@@ -46,15 +48,16 @@ public struct RecipeDetail: Codable, Sendable, Hashable {
         }
     }
 
-    public init(title: String, servings: Int, minutes: Int, ingredients: [Ingredient], steps: [Step]) {
+    public init(title: String, servings: Int, minutes: Int, ingredients: [Ingredient], steps: [Step], nutrition: Nutrition? = nil) {
         self.title = title
         self.servings = servings
         self.minutes = minutes
         self.ingredients = ingredients
         self.steps = steps
+        self.nutrition = nutrition
     }
 
-    private enum Keys: String, CodingKey { case title, servings, minutes, ingredients, steps }
+    private enum Keys: String, CodingKey { case title, servings, minutes, ingredients, steps, nutrition }
 
     public init(from decoder: any Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
@@ -63,6 +66,7 @@ public struct RecipeDetail: Codable, Sendable, Hashable {
         minutes = Int(c.lenientNumber(forKey: .minutes) ?? 30)
         ingredients = try c.decode([IngredientReply].self, forKey: .ingredients).map(\.ingredient)
         steps = try c.decode([Step].self, forKey: .steps)
+        nutrition = try? c.decode(Nutrition.self, forKey: .nutrition)
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -72,6 +76,7 @@ public struct RecipeDetail: Codable, Sendable, Hashable {
         try c.encode(minutes, forKey: .minutes)
         try c.encode(ingredients, forKey: .ingredients)
         try c.encode(steps, forKey: .steps)
+        try c.encodeIfPresent(nutrition, forKey: .nutrition)
     }
 }
 

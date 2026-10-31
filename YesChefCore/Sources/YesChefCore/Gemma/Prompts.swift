@@ -11,6 +11,7 @@ enum Prompts {
             if !member.likes.isEmpty { line += "; likes \(member.likes.joined(separator: ", "))" }
             if !member.avoid.isEmpty { line += "; must never eat \(member.avoid.joined(separator: ", "))" }
             if let diet = member.diet, !diet.isEmpty { line += "; diet: \(diet)" }
+            if !member.goals.isEmpty { line += "; health goals: \(member.goals.joined(separator: ", "))" }
             return line
         }
         if let budget = household.weeklyBudget {
@@ -35,7 +36,7 @@ enum Prompts {
             \(Self.household(household))
             Busy days, which need dinners under 30 minutes that are easy: \(busy.isEmpty ? "none" : busy.joined(separator: ", ")).
             \(grounding)
-            Give \(ideasPerDay) different dinner ideas for each day. Vary proteins and cuisines across the week.
+            Give \(ideasPerDay) different dinner ideas for each day. Vary proteins and cuisines across the week, and fit each member's health goals.
             Never include anything a household member must never eat. Write ingredient names plainly, with no allergy notes.
             Reply with JSON in exactly this shape:
             {"days":[{"day":"Monday","ideas":[{"title":"Sheet-pan chicken fajitas","summary":"One sentence on why it fits.","protein":"chicken","flavours":["spicy","savory"],"minutes":25,"difficulty":"easy","costPerServing":3.5,"ingredients":["chicken thighs","bell peppers","tortillas"],"source":""}]}]}
@@ -55,6 +56,7 @@ enum Prompts {
         Reply with JSON in exactly this shape:
         {"title":"\(idea.title)","servings":\(servings),"minutes":30,"ingredients":[{"name":"chicken thighs","amount":"1","unit":"lb"}],"steps":[{"instruction":"Slice the peppers into thin strips.","technique":"Thin, even strips cook at the same speed, so nothing burns while the rest softens.","timerSeconds":null}]}
         timerSeconds is a whole number of seconds for steps that need waiting, otherwise null.
+        Also add "nutrition": your estimate for one serving, as {"calories":520,"protein":35,"carbs":40,"fat":18,"fiber":8,"sugar":6} in kcal and grams, and fit the household's health goals.
         """
     }
 

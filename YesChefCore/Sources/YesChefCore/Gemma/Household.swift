@@ -9,15 +9,18 @@ public struct Household: Codable, Sendable, Hashable {
         // Allergies, restrictions and dislikes; every entry is a hard rule.
         public var avoid: [String]
         public var diet: String?
+        // Health goals in plain words, such as "high protein" or "under 650 calories a dinner".
+        public var goals: [String]
 
         public var id: String { name }
 
-        public init(name: String, cookingSkill: String = "beginner", likes: [String] = [], avoid: [String] = [], diet: String? = nil) {
+        public init(name: String, cookingSkill: String = "beginner", likes: [String] = [], avoid: [String] = [], diet: String? = nil, goals: [String] = []) {
             self.name = name
             self.cookingSkill = cookingSkill
             self.likes = likes
             self.avoid = avoid
             self.diet = diet
+            self.goals = goals
         }
     }
 

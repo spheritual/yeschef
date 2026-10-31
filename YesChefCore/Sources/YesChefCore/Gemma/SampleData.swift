@@ -1,8 +1,8 @@
 // Fixed data for SwiftUI previews and for the demo when the network drops.
 public enum SampleData {
     public static let household = Household(members: [
-        .init(name: "Alex", likes: ["tacos", "pasta"], avoid: ["peanut"]),
-        .init(name: "Sam", cookingSkill: "some experience", likes: ["spicy food"], diet: "vegetarian on Mondays"),
+        .init(name: "Alex", likes: ["tacos", "pasta"], avoid: ["peanut"], goals: ["under 650 calories a dinner", "less sugar"]),
+        .init(name: "Sam", cookingSkill: "some experience", likes: ["spicy food"], diet: "vegetarian on Mondays", goals: ["high protein"]),
     ], weeklyBudget: 90)
 
     public static let fajitas = DinnerIdea(
@@ -47,5 +47,6 @@ public enum SampleData {
             .init(instruction: "Cut the chicken into strips and toss everything with the seasoning and a little oil.", technique: "Oil carries the spices onto every piece and helps it brown.", timerSeconds: nil),
             .init(instruction: "Spread it out in one layer and roast.", technique: "Crowded pieces steam; space lets them char.", timerSeconds: 1200),
             .init(instruction: "Squeeze the lime over the pan and serve in warm tortillas.", technique: "Acid at the end wakes up the flavours.", timerSeconds: nil),
-        ])
+        ],
+        nutrition: Nutrition(calories: 540, protein: 38, carbs: 48, fat: 20, fiber: 6, sugar: 7))
 }
