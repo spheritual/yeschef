@@ -10,7 +10,7 @@ Submissions open at 2:15 and close at 2:45, and demos run from 2:45. No new feat
 
 MacBook:
 
-- [ ] Build the latency change (added after 15:30) for the iPhone simulator and a real iPhone. It
+- [ ] Build the latency change (6643909 and 12cb11f) for the iPhone simulator and a real iPhone. It
       touches `YesChef/AppModel.swift` and `MealPlanner.swift`. `planWeek` now makes one Gemma call
       per day, all at once, and took 11.8 s for three days on the Linux laptop, down from 30 s.
       `AppModel` fetches each planned dinner's recipe in the background once the plan arrives,
