@@ -154,7 +154,7 @@ c_pref=p.box(920,640,230,120,"<b>PreferenceModel</b><br>Bayesian linear model pe
 c_enc=p.box(1170,640,230,120,"<b>FeatureEncoder</b>, <b>FeedbackSignal</b><br>15 recipe and day features; ratings to rewards")
 c_books=p.box(920,772,480,58,"<b>Cookbook</b>: BM25 search over 3,268 passages from six Gutenberg cookbooks","external")
 api=p.box(1490,240,200,100,"<b>Gemini API</b><br>Gemma 4","external")
-p.edge(v_main,model,"reads state, calls actions","uses")
+p.edge(v_main,model,"","uses")
 p.edge(v_cook,model,"","uses")
 p.edge(v_chat,model,"","uses")
 p.edge(v_import,model,"","uses")
@@ -166,7 +166,7 @@ p.edge(c_planner,c_rules,"")
 p.edge(c_planner,c_rank,"")
 p.edge(c_rank,c_pref,"")
 p.edge(c_client,api,"HTTPS")
-p.edge(c_planner,c_books,"search before each prompt","uses")
+p.edge(c_planner,c_books,"","uses")
 pages.append(p)
 
 #3 use cases
@@ -574,6 +574,29 @@ def preview(directory):
         out.append("</svg>")
         (directory/f"{n:02d}.svg").write_text("\n".join(out),encoding="utf-8")
 
+def export(directory):
+    #draw.io's own renderer, from the Flathub app (flatpak install flathub com.jgraph.drawio.desktop)
+    # -e embeds the diagram, which keeps the PNGs and SVGs editable in draw.io
+    import subprocess
+    directory.mkdir(parents=True,exist_ok=True)
+    drawio=["flatpak","run","com.jgraph.drawio.desktop"]
+    jobs=[]
+    for n,page in enumerate(pages,1):
+        slug=re.sub(r"[^a-z0-9]+","-",page.name.lower()).strip("-")
+        slug=re.sub(r"^\d+-","",slug)
+        for fmt,extra in (("png",["-s","2"]),("svg",[])):
+            jobs.append(["-x","-f",fmt,"-p",str(n),"-b","20","-e",*extra,"-o",str(directory/f"{n:02d}-{slug}.{fmt}"),str(OUT)])
+    jobs.append(["-x","-f","pdf","-a","--crop","-o",str(directory/"yeschef-design.pdf"),str(OUT)])
+    failed=0
+    for job in jobs:
+        result=subprocess.run(drawio+job,capture_output=True,text=True,timeout=180)
+        target=Path(job[job.index("-o")+1])
+        if result.returncode!=0 or not target.exists() or target.stat().st_size==0:
+            failed+=1
+            print(f"export failed: {target.name} (exit {result.returncode})")
+    print(f"exported {len(jobs)-failed} of {len(jobs)} files to {directory}")
+    return failed
+
 if __name__=="__main__":
     problems=check(pages)
     for problem in problems:
@@ -583,4 +606,6 @@ if __name__=="__main__":
     if len(sys.argv)==3 and sys.argv[1]=="--preview":
         preview(Path(sys.argv[2]))
         print(f"wrote previews to {sys.argv[2]}")
+    if len(sys.argv)==2 and sys.argv[1]=="--export":
+        problems+=["export"]*export(OUT.parent/"export")
     sys.exit(1 if problems else 0)

@@ -135,7 +135,7 @@
         <mxCell id="c28" value="&lt;b&gt;Gemini API&lt;/b&gt;&lt;br&gt;Gemma 4" style="html=1;whiteSpace=wrap;fontColor=#263B2E;strokeColor=#386347;fontSize=13;rounded=1;arcSize=12;fillColor=#E7ECCD;" vertex="1" parent="1">
           <mxGeometry x="1490" y="240" width="200" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="c29" value="reads state, calls actions" style="html=1;endArrow=open;dashed=1;strokeColor=#263B2E;fontColor=#263B2E;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="c7" target="c13">
+        <mxCell id="c29" value="" style="html=1;endArrow=open;dashed=1;strokeColor=#263B2E;fontColor=#263B2E;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="c7" target="c13">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="c30" value="" style="html=1;endArrow=open;dashed=1;strokeColor=#263B2E;fontColor=#263B2E;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="c9" target="c13">
@@ -171,7 +171,7 @@
         <mxCell id="c40" value="HTTPS" style="html=1;endArrow=block;endFill=1;strokeColor=#263B2E;fontColor=#263B2E;fontSize=11;labelBackgroundColor=#F8F5EC;" edge="1" parent="1" source="c19" target="c28">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="c41" value="search before each prompt" style="html=1;endArrow=open;dashed=1;strokeColor=#263B2E;fontColor=#263B2E;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="c18" target="c27">
+        <mxCell id="c41" value="" style="html=1;endArrow=open;dashed=1;strokeColor=#263B2E;fontColor=#263B2E;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="c18" target="c27">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
