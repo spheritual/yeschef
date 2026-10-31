@@ -131,9 +131,10 @@ struct WallClock: View {
 
     var body: some View {
         ZStack {
+            // A fixed dark ink: Theme.ink turns light in dark mode and would vanish on the white face.
             Circle().fill(.white)
-            Circle().stroke(Theme.ink, lineWidth: 2)
-            Rectangle().fill(Theme.ink)
+            Circle().stroke(Color(hex: 0x263B2E), lineWidth: 2)
+            Rectangle().fill(Color(hex: 0x263B2E))
                 .frame(width: 2, height: 9)
                 .offset(y: -4.5)
                 .rotationEffect(.degrees(120))
