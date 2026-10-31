@@ -1,0 +1,10 @@
+# Paradev workspace lifecycle for yeschef. The scripts skip any step whose
+# files aren't in the repo yet, so this is safe before the Swift code lands.
+# The guards cover worktrees cut before these scripts existed: Paradev falls
+# back to main's config there, but the scripts aren't checked out.
+
+[setup]
+run = "[ ! -f .superset/setup.sh ] || ./.superset/setup.sh"
+
+[archive]
+run = "[ ! -f .superset/archive.sh ] || ./.superset/archive.sh"
