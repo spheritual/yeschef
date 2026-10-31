@@ -31,11 +31,36 @@ MacBook:
 - [x] Trim the README's "What it does" to what the demo shows, and add one line on the Gutenberg
       cookbooks.
 
+MacBook, after 14:08:
+
+- [ ] Pull c80627a and build. It fixes voice input, the learning card labels and Basil's moods,
+      and it was written on the Linux laptop, which means Xcode is the first compiler to see it.
+      Fix any build error before anything else.
+- [ ] Try the mic in the simulator. It should now wait up to 8 seconds for the first word and stop
+      2 seconds after the last, and Basil should still speak his answer afterwards.
+- [ ] Check the new moods: the pan only while Gemma thinks, a hop while listening, the cookbook
+      for answers and recipes, the wall clock beside a running timer in cook mode, and the
+      reactions to a 5-star and a 1-star rating.
+
+Hardcoded for the demo, found at 14:10:
+
+- [ ] `AppModel.household` is `SampleData.household` (Alex and Sam, a peanut allergy, a $90
+      budget). The Household page only shows it, with nothing to edit.
+- [ ] `AppModel.busyDays` is always `["Wednesday"]`, set in code, with no screen or calendar to
+      change it.
+- [ ] `AppModel.plan` starts as `SampleData.weekPlan`, and `planWeek` always plans Monday to
+      Wednesday (`weekdays.prefix(3)`), not the next three days from today.
+- [ ] `record(_:for:onBusyDay:)` is called without `onBusyDay` from cook mode, which means
+      feedback is always recorded as a calm day and the two busy-day features never learn.
+- [ ] The learning models are in memory only and reset when the app quits (decided at 13:22).
+- [ ] With no key, `open` shows `SampleData.recipe` (the fajitas) for any dinner.
+- [ ] YesChefCore defaults: 3 ideas per day, 4 servings per recipe, temperature 0.7, a 90-second
+      timeout, prices in US dollars, and "chicken soup vegetables" as the cookbook search when no
+      one has listed likes.
+
 Team:
 
-- [ ] Decide on `gummi-main/` before 2:15. It's another project (Gummi, "Overall winner, WolfHacks
-      2026") with no license, committed as character reference, inside a repo the README calls
-      Apache 2.0.
+- [x] Remove `gummi-main/`. Done at 14:10 on the operator's word; none of its code was used.
 - [ ] Fill in the MLH submission, listing Gemma 4 and Claude Code as the AI tools.
 
 Linux laptop:

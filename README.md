@@ -108,7 +108,6 @@ The app adds no third-party Swift packages.
 - `.claude/` and `.mcp.json`: the coding-agent skills and the Figma MCP server the team used
   while building
 - `RESOURCES.MD`: the sources the team chose for Gemma to draw on
-- `gummi-main/`: another team's project, kept as reference and not part of yeschef!
 
 ## AI tools we used
 

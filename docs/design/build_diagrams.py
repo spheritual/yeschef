@@ -454,7 +454,7 @@ pages.append(p)
 
 #13 file structure
 p=Page("13 File structure",1500,1060)
-p.header("13. File structure","What each folder in the repo holds. gummi-main is another project's code that a teammate committed as reference; it isn't part of yeschef!.")
+p.header("13. File structure","What each folder in the repo holds.")
 tree="""yeschef/
   README.md                  what it is, the model and its license, how to run
   LICENSE                    Apache 2.0
@@ -482,7 +482,7 @@ tree="""yeschef/
     design/                  yeschef.drawio, the feature sheet, the generator
   .plans/                    coding checklist and the feedback learning spec
   .claude/skills/            interview, swiftui-pro, swiftui-expert-skill
-  gummi-main/                another project, committed as character reference"""
+  RESOURCES.MD               the sources the team chose for Gemma to draw on"""
 p.box(40,120,1420,900,html.escape(tree).replace("\n","<br>").replace("  ","&nbsp;&nbsp;"),"mono")
 pages.append(p)
 
