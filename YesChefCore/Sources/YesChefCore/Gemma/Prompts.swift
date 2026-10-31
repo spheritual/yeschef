@@ -19,26 +19,37 @@ enum Prompts {
         return lines.joined(separator: "\n")
     }
 
-    static func week(_ household: Household, days: [String], busyDays: Set<String>, ideasPerDay: Int) -> String {
+    // Passages from the Project Gutenberg cookbooks, labelled with their book for citation.
+    static func references(_ passages: [Cookbook.Passage]) -> String {
+        guard !passages.isEmpty else { return "" }
+        let lines = passages.map { "- From \($0.source.title) by \($0.source.author), \"\($0.heading)\": \($0.text.prefix(500))" }
+        return "Classic recipes from public-domain cookbooks on Project Gutenberg, which you can adapt for today's kitchen:\n" + lines.joined(separator: "\n")
+    }
+
+    static func week(_ household: Household, days: [String], busyDays: Set<String>, ideasPerDay: Int, references: [Cookbook.Passage] = []) -> String {
         let busy = days.filter(busyDays.contains)
+        let grounding = references.isEmpty ? "" : Self.references(references) + "\nBase at least one idea per day on one of these classics where it fits, modernized for a beginner, and put that book's title in \"source\". Leave \"source\" empty for ideas of your own.\n"
         return """
             Plan dinners for these days: \(days.joined(separator: ", ")).
             Household:
             \(Self.household(household))
             Busy days, which need dinners under 30 minutes that are easy: \(busy.isEmpty ? "none" : busy.joined(separator: ", ")).
+            \(grounding)
             Give \(ideasPerDay) different dinner ideas for each day. Vary proteins and cuisines across the week.
             Never include anything a household member must never eat. Write ingredient names plainly, with no allergy notes.
             Reply with JSON in exactly this shape:
-            {"days":[{"day":"Monday","ideas":[{"title":"Sheet-pan chicken fajitas","summary":"One sentence on why it fits.","protein":"chicken","flavours":["spicy","savory"],"minutes":25,"difficulty":"easy","costPerServing":3.5,"ingredients":["chicken thighs","bell peppers","tortillas"]}]}]}
+            {"days":[{"day":"Monday","ideas":[{"title":"Sheet-pan chicken fajitas","summary":"One sentence on why it fits.","protein":"chicken","flavours":["spicy","savory"],"minutes":25,"difficulty":"easy","costPerServing":3.5,"ingredients":["chicken thighs","bell peppers","tortillas"],"source":""}]}]}
             protein is one of chicken, beef, pork, fish, vegetarian. flavours uses only spicy, sweet, savory, fresh. difficulty is easy, medium or hard. costPerServing is in US dollars.
             """
     }
 
-    static func recipe(_ idea: DinnerIdea, household: Household, servings: Int) -> String {
-        """
+    static func recipe(_ idea: DinnerIdea, household: Household, servings: Int, references: [Cookbook.Passage] = []) -> String {
+        let grounding = references.isEmpty ? "" : Self.references(references) + "\nIf one of these is the same dish, follow it, but use modern measurements, modern equipment and safe modern cooking temperatures.\n"
+        return """
         Write the recipe for "\(idea.title)" for \(servings) people, for a beginner cook.
         Household:
         \(Self.household(household))
+        \(grounding)
         Never use anything a household member must never eat. Write ingredient names plainly, with no allergy notes.
         Every step gets a technique note: one or two plain sentences on how to do it well or why it matters.
         Reply with JSON in exactly this shape:
@@ -54,8 +65,8 @@ enum Prompts {
         {"title":"Recipe name","servings":4,"minutes":30,"ingredients":[{"name":"flour","amount":"2","unit":"cups"}],"steps":[{"instruction":"Whisk the dry ingredients.","technique":"Whisking first spreads the baking powder evenly.","timerSeconds":null}]}
         """
 
-    static func question(_ question: String, step: RecipeDetail.Step?, recipe: RecipeDetail?) -> String {
-        var context = ""
+    static func question(_ question: String, step: RecipeDetail.Step?, recipe: RecipeDetail?, references: [Cookbook.Passage] = []) -> String {
+        var context = references.isEmpty ? "" : Self.references(references) + "\nUse these if they help, and name the book when you do.\n"
         if let recipe { context += "We're cooking \(recipe.title).\n" }
         if let step { context += "The current step is: \(step.instruction)\n" }
         return context + "The cook asks: \(question)\nAnswer in at most three short sentences, in plain words, as Basil."

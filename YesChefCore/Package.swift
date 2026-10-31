@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "YesChefCore", targets: ["YesChefCore"]),
     ],
     targets: [
-        .target(name: "YesChefCore"),
+        .target(name: "YesChefCore", resources: [.copy("Resources/cookbooks.json")]),
         .testTarget(name: "YesChefCoreTests", dependencies: ["YesChefCore"]),
     ]
 )
