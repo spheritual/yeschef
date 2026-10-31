@@ -26,9 +26,10 @@ to [requirements.md](../requirements.md).
 | Rating and learning | Rates a dinner 1 to 5 stars | Rating sheet, Learning card | none, Thompson sampling on the phone | On main; tested, and the terminal demo shows it learning | BR-03, BR-17 |
 | Mute Basil | Turns his voice off | Settings | none | On main (MacBook) | BR-10 |
 | Calendar-aware days | Busy, out or bringing a dish | none yet | planned | Planned | BR-06 |
-| Budget and health goals | Sets a weekly budget, calories and macros | none yet | planned | Planned | BR-08, BR-16 |
+| Health goals and nutrition | Sees each member's goals and a per-serving nutrition estimate on every recipe | Household, Recipe card | goals go into the planning and recipe prompts, and Gemma estimates calories, protein, carbs, fat, fiber and sugar | On main since 941b900; goals come from the sample household and can't be edited yet | BR-16 |
+| Budget | Sets a weekly budget | Household (shown only) | the budget goes into the planning prompt | Partly: the sample budget reaches Gemma, nothing checks the total | BR-08 |
 | Store deals and pickup orders | Builds a drive-up list and orders | none yet | planned; grocer APIs unverified | Planned | BR-11, BR-12 |
-| Points, streaks and outfits | Earns points and dresses Basil | Basil's wardrobe (Figma only) | none | Designed, not built | BR-18 |
+| Leaves, streaks and outfits | Earns leaves for planning, cooking, rating, asking and importing, keeps a daily streak, and spends leaves dressing Basil | Streak chip on Basil's stage, Basil's wardrobe | none | On main since 941b900, saved like the shopping list; the log is tested, the screens not yet built on the Mac | BR-18 |
 | Restaurant check-ins | Gets asked how a meal out went | none yet | planned | Planned | BR-15 |
 
 ## Timing
