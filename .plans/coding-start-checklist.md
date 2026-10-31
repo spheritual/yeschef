@@ -1,71 +1,88 @@
-# Checklist before we start coding
+# Hack day checklist
 
-Written at 11:50 on hack day. The humans own design and architecture, and Claude writes the Swift.
-The decisions in the first section come before any code, since each one changes what gets built.
-Items marked "unverified" are things nobody has checked yet.
+Started at 11:50 and updated at 13:48. The open tasks come first, with who owns each one. The
+sections after them are the original setup list, ticked as things got done. Items marked
+"unverified" are things nobody has checked yet.
 
-## Suggested timeline
+## Open tasks for the demo (as of 13:48)
 
-- 12:15: decisions made, Xcode project pushed to the repo.
-- 1:30: the core flow runs in the simulator.
-- 2:00: no new features. README, license and the public repo get finished.
-- 2:15 to 2:45: submit. Demos run 2:45 to 3:45.
+Submissions open at 2:15 and close at 2:45, and demos run from 2:45. No new features after 2:00.
+
+MacBook:
+
+- [ ] Pull `main` (96fc980 or later) and rebuild. YesChefCore now bundles
+      `Resources/cookbooks.json` (2.6 MB, six public-domain cookbooks from Project Gutenberg) as a
+      package resource. Check the app still builds, and that `Cookbook.bundled` isn't nil in the
+      simulator, which means the resource made it into the app.
+- [ ] Show where a dinner came from. `DinnerIdea.source` holds the cookbook's title when Gemma based
+      the idea on a classic, and it's nil otherwise. A line like "Adapted from The Century Cook
+      Book (Project Gutenberg)" on the day card and the recipe screen shows the grounding to the
+      judges.
+- [ ] Plan fewer days for the demo. `AppModel.planWeek()` asks for all seven days, which nobody has
+      timed. A two-day plan, a recipe and a question took about 37 seconds together on the Linux
+      laptop. Passing `days: Array(MealPlanner.weekdays.prefix(3))` keeps the wait short while
+      Basil cooks.
+- [ ] Rehearse the demo path end to end in the simulator with the real key: plan, open a dinner,
+      cook a step, ask Basil by voice, rate it, show the learning card, import the salmon
+      screenshot.
+- [ ] Trim the README's "What it does" to what the demo shows, and add one line on the Gutenberg
+      cookbooks.
+
+Team:
+
+- [ ] Decide on `gummi-main/` before 2:15. It's another project (Gummi, "Overall winner, WolfHacks
+      2026") with no license, committed as character reference, inside a repo the README calls
+      Apache 2.0.
+- [ ] Fill in the MLH submission, listing Gemma 4 and Claude Code as the AI tools.
+
+Linux laptop:
+
+- [ ] Stays on YesChefCore fixes and the terminal backup demo (`cd YesChefDemo && swift run
+      yeschef-demo`). Send it any planner error the Mac sees.
 
 ## Decisions for the team
 
-- [ ] Pick the demo cut. Two and a half hours fits one flow from start to finish: preferences in, a
-      Gemma meal plan out, one recipe opened in a step-by-step cooking mode, then saved and rated.
-      My suggested stretch order is recipe import from a screenshot first, because it shows Gemma
-      reading images, then calendar, then health apps, then restaurant detection.
-- [ ] Pick hosted or on-device Gemma. The opening slides give the Gemma prize for models "via the
-      Gemini API", which points to gemma-4-26b-a4b-it or gemma-4-31b-it over REST. On-device would
-      add Google's AI Edge runtime as a dependency, and it probably wouldn't count for that prize.
-- [ ] Pick where the Gemini key lives. Anyone holding the app can pull out a key compiled into it.
-      For the demo, a gitignored `Secrets.xcconfig` on the Mac works. A real release would need a
-      small server that holds the key.
+- [x] Pick the demo cut: plan, recipe, cook mode with timers, ask Basil, rate, learning card and
+      photo import.
+- [x] Pick hosted or on-device Gemma. Hosted, `gemma-4-26b-a4b-it` through the Gemini API, which is
+      what the Gemma prize asks for. Thinking is set to minimal, which took a one-line reply from 3
+      seconds to half a second.
+- [x] Pick where the Gemini key lives. It's in `Config/Secrets.xcconfig` on the Mac, gitignored. A real
+      release would need a small server that holds the key.
 - [x] Pick the database layer. Decided at 13:22: the demo saves nothing and keeps everything in
-      memory, and this choice waits until after the hackathon. SwiftData is Apple's own and stores its data in SQLite, but it only
-      builds on the Mac. The sqlite3 C library builds on the Mac and on the Linux laptop, which
-      lets Claude test storage code before it reaches the Mac, at the cost of hand-written SQL.
+      memory, and SwiftData or the sqlite3 library waits until after the hackathon.
 - [ ] Pick the lowest iOS version. SwiftData and `@Observable` need iOS 17 or later. If we demo on
       someone's iPhone, its iOS version sets the floor.
-- [ ] Pick what onboarding asks: dietary restrictions, allergies, dislikes, cooking skill, kitchen
-      equipment, time per meal, people to feed and budget.
-- [ ] Pick what "teaching" looks like on screen. One option is that every step carries a plain
-      explanation of its technique, a timer when the step has one, and an "ask the chef" button
-      that sends that step to Gemma.
-- [ ] Name the screens and the order between them in Figma. That list becomes the SwiftUI views.
-- [ ] Settle the mascot's art. Designers export the character from Figma as images, and Claude uses
-      a placeholder until then.
+- [x] Pick what "teaching" looks like on screen. It's one step at a time, with a technique note on
+      every step, a timer when the step has one, and questions to Basil about the step.
+- [x] Name the screens in Figma (14 frames, exported to `design/`).
+- [x] Settle the mascot's art. Basil's SVGs come from Figma in `design/assets/`.
+- [x] Ground Gemma in real recipes. Six public-domain cookbooks from Project Gutenberg, searched on
+      the phone, with the book cited in each idea.
 
 ## Accounts and access
 
-- [ ] Create a Gemini API key at <https://aistudio.google.com/apikey> and check Gemma 4's limits
-      on AI Studio's rate-limit page (unverified, since the docs don't list them).
-- [ ] Give each coder push access to spheritual/yeschef.
-- [x] Install Xcode on the Mac with an iOS simulator downloaded. An Apple ID in Xcode is only
-      needed to run on a real iPhone.
-- [ ] Check whether HealthKit works on a free Apple ID (unverified). This only matters if health
-      integration makes the cut.
+- [x] Create a Gemini API key. Gemma 4's rate limits are still unverified.
+- [x] Give each coder push access to spheritual/yeschef.
+- [x] Install Xcode on the Mac with an iOS simulator downloaded.
+- [ ] Check whether HealthKit works on a free Apple ID (unverified). Only needed after the
+      hackathon.
 - [ ] Check whether MyFitnessPal, Fitbit and Google Fit still let new apps use their APIs
-      (unverified). HealthKit is the iOS-native path.
+      (unverified). Only needed after the hackathon.
+- [x] Repo visibility. Neither of us can make it public, and the operator dropped it at 13:14.
 
-## Project setup on the Mac, first
+## Project setup on the Mac
 
-- [x] Create the Xcode project as an iOS App with SwiftUI and Swift, product name `YesChef`, saved
-      at the repo root. Untick "Create Git repository" because the repo already exists. Push it.
+- [x] Create the Xcode project, `YesChef`, at the repo root.
 - [x] Add `Secrets.xcconfig` to `.gitignore` before anyone creates the file.
-- [x] Add the local Swift package `YesChefCore` (Claude writes it) to the app target. It holds the
-      non-UI code: models, the Gemini client, prompts and recipe parsing.
-- [ ] Add an Info.plist privacy string for each permission we use (calendar, location, microphone,
-      speech recognition, photo library, health). iOS ends the app when it asks for a permission
-      whose string is missing.
+- [x] Add the local Swift package `YesChefCore` to the app target.
+- [x] Add privacy strings for the microphone and speech recognition. The photo picker doesn't need
+      one.
 
 ## Laptop setup
 
-- [ ] Install Swift with `sudo dnf install swift-lang` (6.3.2). It builds and tests `YesChefCore`
-      on Linux. Xcode may ship a newer Swift, and the core package sticks to what both support.
-- [ ] Store the Gemini key with secret-tool for the laptop tests.
+- [x] Install Swift 6.3.2 with `sudo dnf install swift-lang`.
+- [x] Store the Gemini key with secret-tool for the laptop tests.
 
 ## Gemma integration
 
@@ -73,25 +90,13 @@ Items marked "unverified" are things nobody has checked yet.
 - [x] Check whether Gemma on the Gemini API accepts a JSON response schema. It does: JSON mode with
       a `responseSchema` returned valid JSON at 13:05. The app still validates the reply and
       retries once.
-- [ ] Write the prompts for a meal plan from preferences, a recipe in a fixed format with steps a
-      beginner can follow, an explanation of one step, and a recipe read from a screenshot.
-- [ ] Handle a slow or failed call with a loading state, a retry, and a saved sample plan for the
-      demo in case the network drops.
-
-## Data model, first pass
-
-Claude drafts these once the decisions above are made.
-
-- Profile: restrictions, allergies, dislikes, skill level, equipment and household size.
-- Recipe: title, servings, total time, ingredients with amounts and units, steps with technique
-  notes and timers, source, rating and notes, with room for nutrition later.
-- Meal plan: days, meals per day and the recipe for each meal.
-- Shopping list: ingredients combined across the plan's recipes.
+- [x] Write the prompts for a meal plan, a recipe with technique notes, an answer about a step and
+      a recipe read from a photo.
+- [x] Handle a slow or failed call with Basil's cooking animation, a retry from his confused mood,
+      and the saved sample plan when the app has no key.
 
 ## Open source and submission
 
-- [ ] Make the repo public before 2:15.
-- [ ] Add a LICENSE. Apache-2.0 matches Gemma 4's license.
-- [ ] Write the README with what the app does, the model's name and a link to its license (the
-      open-source track requires both), how to build it and screenshots.
-- [ ] List the AI tools we used (Claude Code and Gemma 4) in the submission, as MLH's rules ask.
+- [x] Add a LICENSE (Apache 2.0, matching Gemma 4).
+- [x] Write the README with the model, its license, how to build it and screenshots.
+- [x] List the AI tools we used in the README.

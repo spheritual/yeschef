@@ -51,7 +51,9 @@ Gemma on the Gemini API, checked at 13:05 with the team key:
 
 The Linux laptop has Swift 6.3.2 and can't build SwiftUI, which keeps its agent on `YesChefCore` and the docs.
 
-The Gemma side is in `YesChefCore/Sources/YesChefCore/Gemma/`, and the MacBook uses it and doesn't write its own Gemini client. `SampleData` has a fixed household, week plan and recipe for previews and for an offline demo.
+The open tasks for every machine are at the top of `.plans/coding-start-checklist.md`; read them after each pull.
+
+The Gemma side is in `YesChefCore/Sources/YesChefCore/Gemma/`, and the MacBook uses it and doesn't write its own Gemini client. Since 13:44 the planner also searches six public-domain cookbooks from Project Gutenberg (`YesChefCore/Sources/YesChefCore/Cookbooks/`) and puts the best passages in each prompt, and `DinnerIdea.source` names the book an idea came from. `SampleData` has a fixed household, week plan and recipe for previews and for an offline demo.
 
 ```swift
 import YesChefCore
