@@ -1,18 +1,23 @@
 import SwiftUI
 
-/// Basil, animated by mood. He cooks with the pan while Gemma thinks (the pan is drawn by the
-/// stage), hops while you talk to him, reads from a cookbook when he teaches, watches the wall
-/// clock while a timer runs, and reacts to ratings: sparkles and a belly rub for a great one, a spit
-/// at the screen for a bad one. Reduce Motion freezes the movement but keeps the props.
+/// Basil the jelly chef, animated by mood. He breathes while he waits, hops while you talk to him,
+/// reads from a cookbook when he teaches, watches the wall clock while a timer runs, cooks with a
+/// spoon while Gemma thinks (the stage draws the pan), and reacts to ratings. The art lives in
+/// `YesChef/Basil/`. Reduce Motion freezes him in a still pose but keeps the props.
 struct BasilView: View {
     let mood: BasilMood
-    /// The asset name of the outfit he's wearing, from the wardrobe.
+    /// The outfit he wears, from the wardrobe: the asset name of an outfit, or "Basil" for none.
     var outfit = "Basil"
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
+    @State private var changedAt = Date.distantPast
 
     var body: some View {
         TimelineView(.animation(paused: reduceMotion)) { context in
-            let t = reduceMotion ? 0 : context.date.timeIntervalSinceReferenceDate
+            let now = context.date.timeIntervalSinceReferenceDate
+            let t = reduceMotion ? 0 : now
+            let pose = BasilPose(mood: mood, t: t)
+            let kick = reduceMotion ? 0 : springKick(since: context.date.timeIntervalSince(changedAt))
             ZStack {
                 if mood == .listening {
                     let pulse = reduceMotion ? 0 : (t * 1.5).truncatingRemainder(dividingBy: 1)
@@ -25,14 +30,34 @@ struct BasilView: View {
                     WallClock(t: t)
                         .offset(x: 50, y: -55)
                 }
-                BasilFigure(mood: mood, outfit: outfit)
-                    .modifier(BasilMotion(mood: mood, t: t, reduceMotion: reduceMotion))
-                BasilProps(mood: mood, t: t)
+                // Contact shadow: shrinks and fades while he is in the air.
+                Ellipse()
+                    .fill(.black.opacity((scheme == .dark ? 0.5 : 0.18) * (1 - min(pose.lift / 40, 0.5))))
+                    .frame(width: 78 - pose.lift, height: 9)
+                    .blur(radius: 3)
+                    .offset(y: 72)
+                ZStack {
+                    JellyBasil(pose: pose)
+                    BasilHeldItem(pose: pose, t: t)
+                }
+                .scaleEffect(x: pose.sx * (1 - kick), y: pose.sy * (1 + kick), anchor: .bottom)
+                .rotationEffect(.degrees(pose.tilt), anchor: .bottom)
+                .offset(y: -pose.lift)
+                BasilExtras(mood: mood, t: t)
+                    .frame(width: 136, height: 153)
+                    .offset(y: -pose.lift * 0.5)
             }
         }
         .frame(width: 136, height: 153)
+        .onChange(of: mood) { changedAt = .now }
         .accessibilityElement()
         .accessibilityLabel("Basil, \(label)")
+    }
+
+    /// A damped spring for the moment the mood changes: a quick stretch that settles with a wobble.
+    private func springKick(since seconds: TimeInterval) -> Double {
+        guard seconds >= 0, seconds < 1.2 else { return 0 }
+        return exp(-seconds * 6) * sin(seconds * 20) * 0.1
     }
 
     private var label: String {
@@ -50,133 +75,9 @@ struct BasilView: View {
     }
 }
 
-/// Each mood's movement: breathing, a bounce or hop, a tilt or a head shake.
-private struct BasilMotion: ViewModifier {
-    let mood: BasilMood
-    let t: Double
-    let reduceMotion: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(x: 1 + breathe * 0.4, y: 1 - breathe * 0.4, anchor: .bottom)
-            .rotationEffect(.degrees(tilt), anchor: .bottom)
-            .offset(y: -bounce)
-    }
-
-    private var breathe: Double {
-        reduceMotion ? 0 : sin(t * 2) * 0.03
-    }
-
-    private var bounce: Double {
-        guard !reduceMotion else { return 0 }
-        switch mood {
-        case .cooking: return abs(sin(t * 6)) * 6
-        case .listening: return abs(sin(t * 7)) * 12
-        case .talking, .teaching: return abs(sin(t * 4)) * 2
-        case .yum: return abs(sin(t * 4)) * 4
-        default: return 0
-        }
-    }
-
-    private var tilt: Double {
-        switch mood {
-        case .confused: reduceMotion ? 6 : 6 + sin(t * 3) * 3
-        case .timer: 8
-        case .yuck: reduceMotion ? 0 : sin(t * 25) * 7
-        case .yum: reduceMotion ? 0 : sin(t * 4) * 4
-        default: 0
-        }
-    }
-}
-
-/// What Basil holds or what flies around him for each mood.
-private struct BasilProps: View {
-    let mood: BasilMood
-    let t: Double
-
-    var body: some View {
-        switch mood {
-        case .teaching:
-            Image(systemName: "book.fill")
-                .font(.system(size: 30))
-                .foregroundStyle(Theme.tomato)
-                .rotationEffect(.degrees(-12 + sin(t * 3) * 4))
-                .offset(x: -44, y: 28)
-        case .yum:
-            ZStack {
-                ForEach(0..<5, id: \.self) { index in
-                    Image(systemName: "sparkle")
-                        .font(.system(size: index.isMultiple(of: 2) ? 18 : 12))
-                        .foregroundStyle(.yellow)
-                        .opacity(0.4 + 0.6 * abs(sin(t * 3 + Double(index))))
-                        .offset(x: [-56, 52, -40, 60, 0][index], y: [-50, -30, 10, 30, -72][index])
-                }
-                // A hand rubbing his belly in small circles.
-                Image(systemName: "hand.raised.fill")
-                    .font(.system(size: 22))
-                    .foregroundStyle(Color(red: 0.94, green: 0.77, blue: 0.62))
-                    .offset(x: cos(t * 7) * 6, y: 40 + sin(t * 7) * 4)
-            }
-        case .yuck:
-            // Drops that grow and fade as they fly at the screen.
-            ZStack {
-                ForEach(0..<4, id: \.self) { index in
-                    let phase = (t * 1.2 + Double(index) * 0.25).truncatingRemainder(dividingBy: 1)
-                    Image(systemName: "drop.fill")
-                        .font(.system(size: 10 + phase * 40))
-                        .foregroundStyle(Color.cyan.opacity(0.8 * (1 - phase)))
-                        .offset(x: Double(index - 2) * 36 * phase, y: -10 + phase * 60)
-                }
-            }
-        default:
-            EmptyView()
-        }
-    }
-}
-
-/// The clock on the wall Basil watches while a timer runs.
-private struct WallClock: View {
-    let t: Double
-
-    var body: some View {
-        ZStack {
-            Circle().fill(.white)
-            Circle().stroke(Theme.ink, lineWidth: 2)
-            Rectangle().fill(Theme.ink)
-                .frame(width: 2, height: 9)
-                .offset(y: -4.5)
-                .rotationEffect(.degrees(120))
-            Rectangle().fill(Theme.tomato)
-                .frame(width: 1.5, height: 12)
-                .offset(y: -6)
-                .rotationEffect(.degrees(t * 36))
-        }
-        .frame(width: 32, height: 32)
-    }
-}
-
-/// Basil's art, exported from the Figma proposal (node 9:22). Confusion shows as a tilt and a "?".
-private struct BasilFigure: View {
-    let mood: BasilMood
-    let outfit: String
-
-    var body: some View {
-        Image(outfit)
-            .resizable()
-            .scaledToFit()
-            .overlay(alignment: .topTrailing) {
-                if mood == .confused {
-                    Text("?").font(.system(size: 26, weight: .bold, design: .rounded))
-                        .foregroundStyle(Theme.tomato)
-                }
-            }
-            .frame(width: 136, height: 153)
-    }
-}
-
 #Preview {
     ScrollView {
-        VStack {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 140))]) {
             ForEach([BasilMood.idle, .listening, .cooking, .talking, .teaching, .timer, .yum, .yuck, .confused], id: \.self) {
                 BasilView(mood: $0)
             }
