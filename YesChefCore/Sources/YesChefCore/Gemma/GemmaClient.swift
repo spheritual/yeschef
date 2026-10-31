@@ -6,11 +6,15 @@ import FoundationNetworking
 // Calls Gemma 4 through the Gemini API's generateContent endpoint over plain REST.
 public struct GemmaClient: LanguageModel {
     public let model: String
+    public let thinking: Bool
     private let apiKey: String
 
-    public init(apiKey: String, model: String = "gemma-4-26b-a4b-it") {
+    // Thinking is on by default in the API. A one-word reply took 3 seconds with it and half a
+    // second without, and a week plan ran past the 90-second timeout, which is why it starts off.
+    public init(apiKey: String, model: String = "gemma-4-26b-a4b-it", thinking: Bool = false) {
         self.apiKey = apiKey
         self.model = model
+        self.thinking = thinking
     }
 
     public func generate(prompt: String, system: String? = nil, image: Data? = nil, imageMIMEType: String = "image/jpeg") async throws -> String {
@@ -24,7 +28,10 @@ public struct GemmaClient: LanguageModel {
         }
         var body: [String: Any] = [
             "contents": [["role": "user", "parts": parts]],
-            "generationConfig": ["temperature": 0.7],
+            "generationConfig": [
+                "temperature": 0.7,
+                "thinkingConfig": ["thinkingLevel": thinking ? "high" : "minimal"],
+            ],
         ]
         if let system {
             body["systemInstruction"] = ["parts": [["text": system]]]
