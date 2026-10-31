@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="96" height="56" viewBox="0 0 96 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Pan with steam (animates)" clip-path="url(#clip0_0_4)">
+<path id="Vector" d="M30 14C26 9 34 6 30 1M46 14C42 9 50 6 46 1M62 14C58 9 66 6 62 1" stroke-width="2.5" stroke-linecap="round" stroke="#73796B"/>
+<path id="Vector_2" d="M8 24H72V32C72 36.2435 70.3143 40.3131 67.3137 43.3137C64.3131 46.3143 60.2435 48 56 48H24C19.7565 48 15.6869 46.3143 12.6863 43.3137C9.68571 40.3131 8 36.2435 8 32V24Z" fill="#263B2E"/>
+<path id="Vector_3" d="M91.5 26H72.5C71.1193 26 70 27.1193 70 28.5C70 29.8807 71.1193 31 72.5 31H91.5C92.8807 31 94 29.8807 94 28.5C94 27.1193 92.8807 26 91.5 26Z" fill="#263B2E"/>
+<path id="Vector_4" d="M40 28C56.5685 28 70 26.2091 70 24C70 21.7909 56.5685 20 40 20C23.4315 20 10 21.7909 10 24C10 26.2091 23.4315 28 40 28Z" fill="#D98C6B"/>
+</g>
+<defs>
+<clipPath id="clip0_0_4">
+<rect width="96" height="56" fill="white"/>
+</clipPath>
+</defs>
+</svg>
