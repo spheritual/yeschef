@@ -22,6 +22,41 @@ We built it at Hacktoberfest Hack Day Raleigh on October 31, 2026.
 The full list, with what's in the demo and what comes later, is in
 [docs/requirements.md](docs/requirements.md).
 
+## Proof of concept
+
+These screenshots come from live runs on October 31, 2026, at about 4:47 PM, in the iPhone 18 Pro
+Max simulator on iOS 27.2. The app called `gemma-4-26b-a4b-it` through the Gemini API, and none of
+what's on screen is sample data: the dinners, the cookbook it cites, the recipe, the nutrition
+estimate and Basil's answer all came back from Gemma during the run.
+
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/live/planning.png" width="220" alt="Basil cooking while Gemma plans the dinners"><br>1. Basil cooks while Gemma plans</td>
+<td align="center"><img src="docs/screenshots/live/plan.png" width="220" alt="Three dinners planned live by Gemma, one adapted from Dr. Allinson's Cookery Book"><br>2. Three dinners from Gemma, one<br>adapted from a Gutenberg cookbook</td>
+<td align="center"><img src="docs/screenshots/live/recipe-and-answer.png" width="220" alt="The recipe Gemma wrote, with a nutrition estimate, and Basil's answer to a question about it"><br>3. Gemma's recipe, and Basil<br>answering a question about it</td>
+</tr>
+</table>
+
+The first run planned the dinners, opened the first recipe and asked Basil a question, with a
+screenshot about every 1.4 seconds:
+
+| Step | What happened |
+| --- | --- |
+| Plan three dinners | They arrived 13 to 14 seconds after launch, from one Gemma call per day running at once. |
+| Write the first recipe | It arrived 18 to 20 seconds after the plan, with steps, a technique tip for each and a nutrition estimate. |
+| Answer "How do I know when this step is done?" | Basil answered in under 3 seconds. |
+
+The `YesChefCore` tests ran against the live API the same afternoon: 49 tests and 0 failures. Three
+of them call Gemma: one plans, writes a recipe and answers a question, one reads a recipe from a
+photo, and one is a chat reply that swaps a dinner in the plan.
+
+To repeat it:
+
+- The app: put a key in `Config/Secrets.xcconfig`, run the `YesChef` scheme in a simulator, then
+  launch it with `xcrun simctl launch booted com.spheritual.YesChef -demo plan,recipe,ask`. The
+  `-demo` argument works in debug builds only.
+- The tests: `cd YesChefCore && GEMINI_API_KEY=your-key-here swift test`.
+
 ## Screenshots
 
 <table>
@@ -101,14 +136,18 @@ The app adds no third-party Swift packages.
 ## Repo layout
 
 - `YesChef/` and `YesChef.xcodeproj/`: the iPhone app
+- `Config/`: the build settings, which read the Gemini key from a gitignored `Secrets.xcconfig`
 - `YesChefCore/`: the Swift package for the Gemma calls, the cookbook search and the learning
 - `YesChefDemo/`: the terminal demo
-- `docs/`: [requirements](docs/requirements.md), [architecture](docs/architecture.md) and the
-  [design set](docs/design/README.md)
-- `design/`: the Figma exports
+- `docs/`: [requirements](docs/requirements.md), [architecture](docs/architecture.md), the
+  [technical details](docs/technical-details.md), the [design set](docs/design/README.md), the
+  [MLH challenge case](docs/mlh-judging.md) and the screenshots, with the live ones in
+  `docs/screenshots/live/`
+- `design/`: the Figma exports and the team's wireframe mockups
 - `.plans/`: the task list and the feedback learning spec
 - `.claude/` and `.mcp.json`: the coding-agent skills and the Figma MCP server the team used
   while building
+- `.superset/`: the scripts that set up each agent's workspace
 - `RESOURCES.MD`: the sources the team chose for Gemma to draw on
 
 ## AI tools we used
