@@ -1,0 +1,9 @@
+// Base configuration for the YesChef app target.
+//
+// The Gemini key goes in Config/Secrets.xcconfig next to this file, which is gitignored:
+//
+//     GEMINI_API_KEY = your-key-here
+//
+// The include is optional, so a clone without the key still builds. GEMINI_API_KEY is then
+// empty, and the app falls back to its saved sample plan.
+#include? "Secrets.xcconfig"
