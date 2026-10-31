@@ -42,7 +42,7 @@ Items marked "unverified" are things nobody has checked yet.
 - [ ] Create a Gemini API key at <https://aistudio.google.com/apikey> and check Gemma 4's limits
       on AI Studio's rate-limit page (unverified, since the docs don't list them).
 - [ ] Give each coder push access to spheritual/yeschef.
-- [ ] Install Xcode on the Mac with an iOS simulator downloaded. An Apple ID in Xcode is only
+- [x] Install Xcode on the Mac with an iOS simulator downloaded. An Apple ID in Xcode is only
       needed to run on a real iPhone.
 - [ ] Check whether HealthKit works on a free Apple ID (unverified). This only matters if health
       integration makes the cut.
@@ -51,10 +51,10 @@ Items marked "unverified" are things nobody has checked yet.
 
 ## Project setup on the Mac, first
 
-- [ ] Create the Xcode project as an iOS App with SwiftUI and Swift, product name `YesChef`, saved
+- [x] Create the Xcode project as an iOS App with SwiftUI and Swift, product name `YesChef`, saved
       at the repo root. Untick "Create Git repository" because the repo already exists. Push it.
-- [ ] Add `Secrets.xcconfig` to `.gitignore` before anyone creates the file.
-- [ ] Add the local Swift package `YesChefCore` (Claude writes it) to the app target. It holds the
+- [x] Add `Secrets.xcconfig` to `.gitignore` before anyone creates the file.
+- [x] Add the local Swift package `YesChefCore` (Claude writes it) to the app target. It holds the
       non-UI code: models, the Gemini client, prompts and recipe parsing.
 - [ ] Add an Info.plist privacy string for each permission we use (calendar, location, microphone,
       speech recognition, photo library, health). iOS ends the app when it asks for a permission
@@ -68,9 +68,10 @@ Items marked "unverified" are things nobody has checked yet.
 
 ## Gemma integration
 
-- [ ] Confirm our key answers for the chosen model ID.
-- [ ] Check whether Gemma on the Gemini API accepts a JSON response schema (unverified). If it
-      doesn't, the prompt asks for JSON, and the app validates the reply and retries once.
+- [x] Confirm our key answers for the chosen model ID.
+- [x] Check whether Gemma on the Gemini API accepts a JSON response schema. It does: JSON mode with
+      a `responseSchema` returned valid JSON at 13:05. The app still validates the reply and
+      retries once.
 - [ ] Write the prompts for a meal plan from preferences, a recipe in a fixed format with steps a
       beginner can follow, an explanation of one step, and a recipe read from a screenshot.
 - [ ] Handle a slow or failed call with a loading state, a retry, and a saved sample plan for the
