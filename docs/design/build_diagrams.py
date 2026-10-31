@@ -121,6 +121,8 @@ shops=p.box(900,520,360,80,"Grocery store deals and pickup orders<br>planned, AP
 p.edge(cook,app,"talks, taps, cooks and rates")
 p.edge(app,gemini,"HTTPS: plans, recipes, photo reads, answers")
 p.edge(app,ios,"on-device calls")
+books=p.box(40,520,250,100,"<b>Six public-domain cookbooks</b><br>from Project Gutenberg, bundled in the app and searched on the phone","external")
+p.edge(app,books,"grounds Gemma's prompts")
 p.edge(app,cal,"","dashed")
 p.edge(app,shops,"","dashed")
 pages.append(p)
@@ -150,6 +152,7 @@ c_rules=p.box(920,510,230,100,"<b>HardRules</b><br>drops allergens and dislikes 
 c_rank=p.box(1170,510,230,100,"<b>Recommender</b><br>Thompson sampling, household average")
 c_pref=p.box(920,640,230,120,"<b>PreferenceModel</b><br>Bayesian linear model per member, decay on old feedback")
 c_enc=p.box(1170,640,230,120,"<b>FeatureEncoder</b>, <b>FeedbackSignal</b><br>15 recipe and day features; ratings to rewards")
+c_books=p.box(920,772,480,58,"<b>Cookbook</b>: BM25 search over 3,268 passages from six Gutenberg cookbooks","external")
 api=p.box(1490,240,200,100,"<b>Gemini API</b><br>Gemma 4","external")
 p.edge(v_main,model,"reads state, calls actions","uses")
 p.edge(v_cook,model,"","uses")
@@ -163,6 +166,7 @@ p.edge(c_planner,c_rules,"")
 p.edge(c_planner,c_rank,"")
 p.edge(c_rank,c_pref,"")
 p.edge(c_client,api,"HTTPS")
+p.edge(c_planner,c_books,"search before each prompt","uses")
 pages.append(p)
 
 #3 use cases
@@ -275,6 +279,7 @@ for a,b,t,k in [("Home cook","MainScreen","taps Plan my week","message"),("MainS
 #messages 5 to 8 (y 392 to 536) are the Gemma round trip that gets one retry
 p.box(x["MealPlanner"]-85,370,x["Gemini API"]-x["MealPlanner"]+170,185,"alt: reply isn't JSON, ask once more","frame")
 p.box(40,915,760,70,"If the reply still isn't JSON after one retry, or no idea is safe, AppModel sets mood = confused and offers a retry.","note")
+p.box(820,915,780,70,"Before step 5, MealPlanner searches the bundled Gutenberg cookbooks for the household's tastes, drops passages that name a banned ingredient, and puts the best six in the prompt with their books. Gemma names the book in each idea it based on one.","note")
 pages.append(p)
 
 #7 sequence: cook, ask and rate
@@ -310,7 +315,7 @@ pages.append(p)
 p=Page("9 Activity: how Basil learns",1500,1100)
 p.header("9. Activity diagram: how Basil learns","The feedback loop from .plans/feedback-learning-spec.md. Allergy rules always run before the model, and every rating, cook, swap or skip changes the next plan.")
 a0=p.box(110,130,30,30,"","start")
-a1=p.box(40,200,170,70,"Gemma suggests 3 dinners per day","action")
+a1=p.box(40,200,170,70,"Gemma suggests 3 dinners per day, grounded in cookbook passages","action")
 a2=p.box(40,310,170,70,"Hard rules remove allergens and dislikes","action")
 d1=p.box(45,420,160,100,"Any safe idea left?","decision")
 a3=p.box(300,435,170,70,"Drop the day, or Basil asks again","action")

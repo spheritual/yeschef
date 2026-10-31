@@ -8,6 +8,7 @@ to [requirements.md](../requirements.md).
 | Feature | What the cook does | Screens | Gemma 4 call | Status | BR |
 | --- | --- | --- | --- | --- | --- |
 | Week plan | Taps Plan my week or asks Basil for one | Main screen, This week | `planWeek`: 3 ideas per day, then allergy rules and ranking | On main; live call runs | BR-01 |
+| Cookbook grounding | Sees which classic cookbook a dinner was adapted from | This week, Recipe (task open on the Mac) | every prompt carries the best-matching passages from six public-domain Project Gutenberg cookbooks | On main; tested, live calls run with it on | BR-01, BR-02 |
 | Swaps | Picks another dinner for a day | This week | none, the ranked alternatives come with the plan | On main | BR-01 |
 | Allergy and dislike rules | Lists what each member must never eat | Household | none, the rules run in code before ranking and after every recipe | On main; tested, including "peanut-free" notes | BR-01 |
 | Recipe with teaching notes | Opens a dinner | Recipe, Cook mode | `recipe(for:)`: steps, each with a plain-words technique note | On main; live call runs | BR-02 |
