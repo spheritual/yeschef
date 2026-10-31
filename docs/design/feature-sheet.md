@@ -22,7 +22,7 @@ to [requirements.md](../requirements.md).
 | Technique videos | Watches a short video on a technique | Learning page, recipe steps | none | Planned; source licenses unverified | BR-21 |
 | Basil walks and the bell | Rings a bell to get Basil's attention and sees him walk his stage | Main screen | none | Planned | BR-22 |
 | Photo recipe import | Picks a photo or screenshot of a recipe | Import a recipe | `recipeFromImage`: Gemma reads the image | On main; live call read the team's salmon screen | BR-05 |
-| Shopping list | Opens the list for the week | Shopping list | none, built from the plan's ingredients | On main | BR-04 |
+| Shopping list | Checks items off, edits and adds lines, and swipes them away, like a notepad | Shopping list | none, built from the plan's ingredients | On main since bd449e1; saved to a file after every change; the list logic is tested, the page not yet built on the Mac | BR-04 |
 | Rating and learning | Rates a dinner 1 to 5 stars | Rating sheet, Learning card | none, Thompson sampling on the phone | On main; tested, and the terminal demo shows it learning | BR-03, BR-17 |
 | Mute Basil | Turns his voice off | Settings | none | On main (MacBook) | BR-10 |
 | Calendar-aware days | Busy, out or bringing a dish | none yet | planned | Planned | BR-06 |

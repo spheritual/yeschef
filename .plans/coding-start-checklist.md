@@ -33,9 +33,11 @@ MacBook:
 
 MacBook, after 14:08:
 
-- [ ] Pull c80627a and build. It fixes voice input, the learning card labels and Basil's moods,
-      and it was written on the Linux laptop, which means Xcode is the first compiler to see it.
-      Fix any build error before anything else.
+- [ ] Pull bd449e1 or later and build. c80627a fixes voice input, the learning card labels and
+      Basil's moods, and bd449e1 saves the shopping list. Both were written on the Linux laptop,
+      which means Xcode is the first compiler to see them. Fix any build error before anything else.
+- [ ] Check the shopping list: check items off, close and reopen the page, and quit and relaunch
+      the app. The checks should stay, and editing, adding and swiping away lines should work.
 - [ ] Try the mic in the simulator. It should now wait up to 8 seconds for the first word and stop
       2 seconds after the last, and Basil should still speak his answer afterwards.
 - [ ] Check the new moods: the pan only while Gemma thinks, a hop while listening, the cookbook
