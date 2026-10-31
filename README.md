@@ -44,6 +44,15 @@ cd YesChefCore
 swift test
 ```
 
+A terminal demo plans a few dinners with Gemma, has Basil teach the first one, and then simulates
+three weeks of ratings to chart what he learned. Without `GEMINI_API_KEY` it uses the saved sample
+plan.
+
+```bash
+cd YesChefDemo
+GEMINI_API_KEY=your-key-here swift run yeschef-demo
+```
+
 The app needs Xcode on a Mac.
 
 1. Create `Secrets.xcconfig` next to the Xcode project with the line
