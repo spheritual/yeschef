@@ -123,9 +123,8 @@ private struct BasilStage: View {
             ZStack {
                 BasilView(mood: model.mood)
                 if model.mood == .cooking {
-                    Image(systemName: "frying.pan.fill")
-                        .font(.system(size: 40)).foregroundStyle(Theme.ink)
-                        .offset(x: 110, y: 52)
+                    Image("PanWithSteam")
+                        .offset(x: 97, y: 42)
                         .accessibilityHidden(true)
                 }
                 BurgerButton(isOpen: $menuOpen)
