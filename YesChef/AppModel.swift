@@ -45,8 +45,10 @@ final class AppModel {
     func planWeek() async {
         guard let planner else { return say("I'm offline, so here's my sample week.") }
         await run("Planning your week…", retry: { [weak self] in await self?.planWeek() }) {
+            // Three days keeps the demo's wait short; the planner takes any list of days.
             self.plan = try await planner.planWeek(
-                for: self.household, busyDays: self.busyDays, learning: Array(self.learning.values))
+                for: self.household, days: Array(MealPlanner.weekdays.prefix(3)),
+                busyDays: self.busyDays, learning: Array(self.learning.values))
             return "Here's your week. Tap a dinner to see the recipe."
         }
     }
