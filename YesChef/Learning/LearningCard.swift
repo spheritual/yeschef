@@ -6,7 +6,7 @@ import YesChefCore
 /// mean "more of this", bars to the left "less of this" (.plans/feedback-learning-spec.md).
 struct LearningCard: View {
     @Environment(AppModel.self) private var model
-    @ScaledMetric private var rowHeight = 24.0
+    @ScaledMetric private var rowHeight = 30.0
 
     private struct Row: Identifiable {
         let label: String
@@ -37,7 +37,7 @@ struct LearningCard: View {
             }
             Chart {
                 ForEach(rows) { row in
-                    BarMark(x: .value("Preference", row.weight), y: .value("Feature", row.label), height: .ratio(0.6))
+                    BarMark(x: .value("Preference", row.weight), y: .value("Feature", row.label), height: .ratio(0.3))
                         .foregroundStyle(row.weight >= 0 ? Color.green : Color.orange)
                         .accessibilityLabel(row.label)
                         .accessibilityValue(row.weight >= 0 ? "more of this" : "less of this")
@@ -47,8 +47,22 @@ struct LearningCard: View {
             }
             .chartXScale(domain: -limit...limit)
             .chartXAxis(.hidden)
-            .chartYAxis {
-                AxisMarks { _ in AxisValueLabel() }
+            .chartYAxis(.hidden)
+            // Labels are drawn from the chart's own scale, so each one sits right above its bar.
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    if let frame = proxy.plotFrame.map({ geo[$0] }) {
+                        ForEach(rows) { row in
+                            if let y = proxy.position(forY: row.label) {
+                                Text(row.label)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: frame.width, alignment: .leading)
+                                    .position(x: frame.minX + frame.width / 2, y: frame.minY + y - rowHeight * 0.33)
+                            }
+                        }
+                    }
+                }
             }
             .frame(height: rowHeight * Double(rows.count))
             HStack {
