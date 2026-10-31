@@ -27,24 +27,26 @@ struct LearningCard: View {
         let rows = rows
         let limit = max(0.5, rows.map { abs($0.weight) }.max() ?? 0)
 
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Basil is learning you")
-                .font(.heading(.headline))
-                .foregroundStyle(Theme.ink)
-            if model.learning.isEmpty {
-                Text("Basil learns as you rate meals.")
-                    .font(.subheadline)
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Basil is learning you")
+                    .font(.heading(.headline))
+                    .foregroundStyle(Theme.ink)
+                Text(model.learning.isEmpty ? "Basil learns as you rate meals." : "Your household's taste so far.")
+                    .font(.footnote)
                     .foregroundStyle(Theme.muted)
             }
             Chart {
                 ForEach(rows) { row in
                     BarMark(x: .value("Preference", row.weight), y: .value("Feature", row.label), height: .ratio(0.3))
+                        .clipShape(.capsule)
                         .foregroundStyle(row.weight >= 0 ? Theme.green : Theme.tomato)
                         .accessibilityLabel(row.label)
                         .accessibilityValue(row.weight >= 0 ? "more of this" : "less of this")
                 }
                 RuleMark(x: .value("Neutral", 0))
-                    .foregroundStyle(Theme.muted)
+                    .lineStyle(StrokeStyle(lineWidth: 1))
+                    .foregroundStyle(Theme.hairline)
             }
             .chartXScale(domain: -limit...limit)
             .chartXAxis(.hidden)
@@ -63,11 +65,11 @@ struct LearningCard: View {
                 Spacer()
                 Text("more of this →")
             }
-            .font(.caption)
+            .font(.caption2)
             .foregroundStyle(Theme.muted)
             .accessibilityHidden(true)
         }
-        .padding()
+        .padding(16)
         .cardBackground()
     }
 }

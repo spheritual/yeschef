@@ -14,13 +14,16 @@ struct ImportView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
                 Image(systemName: "camera.viewfinder")
-                    .font(.system(size: 56))
+                    .font(.system(size: 28, weight: .regular))
                     .foregroundStyle(Theme.green)
+                    .frame(width: 64, height: 64)
+                    .background(Theme.stage, in: .circle)
                     .accessibilityHidden(true)
+                    .padding(.bottom, 8)
                 Text("Import a recipe")
-                    .font(.heading(.title2))
+                    .font(.heading(.title3))
                     .foregroundStyle(Theme.ink)
                 if isWorking {
                     ProgressView()
@@ -42,6 +45,7 @@ struct ImportView: View {
                     PhotosPicker(selection: $picked, matching: .images) { label }
                 }
             }
+            .font(.subheadline)
             .multilineTextAlignment(.center)
             .padding(32)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -93,10 +97,11 @@ private struct PickerLabel: View {
     var body: some View {
         Label(failed ? "Choose another" : "Choose a photo", systemImage: "photo")
             .font(.footnote.weight(.semibold))
-            .foregroundStyle(failed ? Theme.green : Theme.card)
+            .foregroundStyle(failed ? Theme.green : Theme.onGreen)
             .padding(.horizontal, 16)
-            .padding(.vertical, 9)
+            .padding(.vertical, 10)
             .background(failed ? Theme.card : Theme.green, in: .capsule)
+            .overlay { if failed { Capsule().strokeBorder(Theme.hairline, lineWidth: 1) } }
     }
 }
 
