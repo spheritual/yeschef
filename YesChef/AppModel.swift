@@ -25,6 +25,10 @@ final class AppModel {
     var household = SampleData.household
     var busyDays: Set<String> = ["Wednesday"]
     var plan = SampleData.weekPlan
+    /// The shopping list, written to a file after every change, which keeps checked items through
+    /// closing the page and restarting the app. It's the one thing the demo saves.
+    var shopping = ShoppingList.load(from: AppModel.shoppingFile) ?? ShoppingList(plan: SampleData.weekPlan)
+    private static let shoppingFile = URL.documentsDirectory.appending(path: "shopping-list.json")
     private(set) var recipe: RecipeDetail?
     /// The idea the open recipe came from, which carries the features feedback learns from.
     private(set) var recipeIdea: DinnerIdea?
@@ -51,6 +55,8 @@ final class AppModel {
             self.plan = try await planner.planWeek(
                 for: self.household, days: Array(MealPlanner.weekdays.prefix(3)),
                 busyDays: self.busyDays, learning: Array(self.learning.values))
+            self.shopping.sync(with: self.plan)
+            self.saveShopping()
             return "Here's your week. Tap a dinner to see the recipe."
         }
     }
@@ -102,6 +108,12 @@ final class AppModel {
                 say("Mmm, that hit the spot! I'll remember it.", mood: .yum)
             }
         }
+    }
+
+    /// Writes the shopping list to its file. A failed write only loses the checks since the last
+    /// save, which is why it doesn't interrupt the cook.
+    func saveShopping() {
+        try? shopping.save(to: Self.shoppingFile)
     }
 
     /// Repeats the call that last failed, for the retry button on Basil's confused mood.

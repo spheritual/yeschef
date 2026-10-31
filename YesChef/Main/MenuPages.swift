@@ -46,33 +46,62 @@ struct RecipesPage: View {
 /// The week's ingredients, deduplicated, with a tick-off checkbox for each.
 struct ShoppingListPage: View {
     @Environment(AppModel.self) private var model
-    @State private var bought: Set<String> = []
+    @State private var newItem = ""
+    @FocusState private var adding: Bool
 
+    // A notepad: check items off, edit or add lines, swipe to delete. AppModel saves the list after
+    // every change, which keeps the checks when the page closes and when the app restarts.
     var body: some View {
-        let items = model.plan.shoppingList
+        @Bindable var model = model
         Page(title: "Shopping list") {
             List {
                 Section {
-                    ForEach(items, id: \.self) { item in
-                        Button {
-                            if !bought.insert(item).inserted { bought.remove(item) }
-                        } label: {
-                            HStack(spacing: 12) {
-                                Image(systemName: bought.contains(item) ? "checkmark.circle.fill" : "circle")
+                    ForEach($model.shopping.items) { $item in
+                        HStack(spacing: 12) {
+                            Button {
+                                item.done.toggle()
+                            } label: {
+                                Image(systemName: item.done ? "checkmark.circle.fill" : "circle")
+                                    .font(.title3)
                                     .foregroundStyle(Theme.green)
-                                Text(item.capitalized)
-                                    .strikethrough(bought.contains(item))
-                                    .foregroundStyle(bought.contains(item) ? Theme.muted : Theme.ink)
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(item.done ? "Got it" : "Still needed")
+                            TextField("Item", text: $item.text)
+                                .strikethrough(item.done)
+                                .foregroundStyle(item.done ? Theme.muted : Theme.ink)
                         }
-                        .accessibilityValue(bought.contains(item) ? "Got it" : "Still needed")
                         .listRowBackground(Theme.card)
                     }
+                    .onDelete { model.shopping.items.remove(atOffsets: $0) }
+                    HStack(spacing: 12) {
+                        Image(systemName: "plus.circle")
+                            .font(.title3)
+                            .foregroundStyle(Theme.green)
+                        TextField("Add an item", text: $newItem)
+                            .focused($adding)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                model.shopping.add(newItem)
+                                newItem = ""
+                                adding = true
+                            }
+                    }
+                    .listRowBackground(Theme.card)
                 } header: {
-                    Text("\(items.count - bought.count) of \(items.count) left to get")
+                    Text("\(model.shopping.remaining) of \(model.shopping.items.count) left to get")
+                } footer: {
+                    Text("Tap a circle to check an item off, tap a name to edit it, and swipe left to delete it.")
+                }
+                if model.shopping.items.contains(where: \.done) {
+                    Section {
+                        Button("Clear checked items", role: .destructive) { model.shopping.clearDone() }
+                            .listRowBackground(Theme.card)
+                    }
                 }
             }
         }
+        .onChange(of: model.shopping) { model.saveShopping() }
     }
 }
 
