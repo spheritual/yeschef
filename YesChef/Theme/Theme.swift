@@ -60,20 +60,45 @@ extension View {
         font(.caption2.bold()).tracking(0.8).foregroundStyle(Theme.green)
     }
 
+    /// A card surface. Light mode lifts it with a soft shadow; dark mode uses a hairline instead.
+    /// For nested surfaces, set the inner radius to this radius minus the padding between them.
     func cardBackground(radius: CGFloat = 20) -> some View {
-        background(Theme.card, in: .rect(cornerRadius: radius))
+        modifier(CardBackground(radius: radius))
+    }
+}
+
+private struct CardBackground: ViewModifier {
+    let radius: CGFloat
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
+        content
+            .background(Theme.card, in: shape)
+            .overlay {
+                if colorScheme == .dark {
+                    shape.strokeBorder(Theme.hairline, lineWidth: 1)
+                }
+            }
+            .shadow(color: .black.opacity(colorScheme == .dark ? 0 : 0.06), radius: 8, y: 2)
     }
 }
 
 /// A filled green pill button, like "Start cooking".
 struct PillButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isEnabled) private var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
+        let pressed = configuration.isPressed && isEnabled
         configuration.label
             .font(.footnote.weight(.semibold))
             .foregroundStyle(Theme.onGreen)
             .padding(.horizontal, 16)
             .padding(.vertical, 9)
             .background(Theme.green, in: .capsule)
-            .opacity(configuration.isPressed ? 0.8 : 1)
+            .scaleEffect(pressed && !reduceMotion ? 0.96 : 1)
+            .opacity(pressed ? 0.85 : 1)
+            .animation(.easeOut(duration: 0.15), value: pressed)
     }
 }
