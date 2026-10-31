@@ -136,4 +136,17 @@ final class GemmaLiveTests: XCTestCase {
         XCTAssertFalse(answer.isEmpty)
         print("LIVE answer:", answer)
     }
+
+    func testLiveRecipeFromScreenshot() async throws {
+        let planner = try planner()
+        // The team's salmon recipe screen from Figma doubles as a recipe screenshot.
+        let image = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("design/screens/06-salmon-recipe.png")
+        guard let data = try? Data(contentsOf: image) else { throw XCTSkip("no screenshot at \(image.path)") }
+        let recipe = try await planner.recipeFromImage(data, mimeType: "image/png", household: SampleData.household)
+        XCTAssertTrue(recipe.title.lowercased().contains("salmon"), recipe.title)
+        XCTAssertFalse(recipe.steps.isEmpty)
+        print("LIVE image recipe:", recipe.title, "ingredients:", recipe.ingredients.count, "steps:", recipe.steps.count)
+    }
 }
