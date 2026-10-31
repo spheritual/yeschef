@@ -27,7 +27,7 @@ enum Prompts {
             \(Self.household(household))
             Busy days, which need dinners under 30 minutes that are easy: \(busy.isEmpty ? "none" : busy.joined(separator: ", ")).
             Give \(ideasPerDay) different dinner ideas for each day. Vary proteins and cuisines across the week.
-            Never include anything a household member must never eat.
+            Never include anything a household member must never eat. Write ingredient names plainly, with no allergy notes.
             Reply with JSON in exactly this shape:
             {"days":[{"day":"Monday","ideas":[{"title":"Sheet-pan chicken fajitas","summary":"One sentence on why it fits.","protein":"chicken","flavours":["spicy","savory"],"minutes":25,"difficulty":"easy","costPerServing":3.5,"ingredients":["chicken thighs","bell peppers","tortillas"]}]}]}
             protein is one of chicken, beef, pork, fish, vegetarian. flavours uses only spicy, sweet, savory, fresh. difficulty is easy, medium or hard. costPerServing is in US dollars.
@@ -39,7 +39,7 @@ enum Prompts {
         Write the recipe for "\(idea.title)" for \(servings) people, for a beginner cook.
         Household:
         \(Self.household(household))
-        Never use anything a household member must never eat.
+        Never use anything a household member must never eat. Write ingredient names plainly, with no allergy notes.
         Every step gets a technique note: one or two plain sentences on how to do it well or why it matters.
         Reply with JSON in exactly this shape:
         {"title":"\(idea.title)","servings":\(servings),"minutes":30,"ingredients":[{"name":"chicken thighs","amount":"1","unit":"lb"}],"steps":[{"instruction":"Slice the peppers into thin strips.","technique":"Thin, even strips cook at the same speed, so nothing burns while the rest softens.","timerSeconds":null}]}

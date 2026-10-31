@@ -160,6 +160,14 @@ final class LearningTests: XCTestCase {
         XCTAssertEqual(Array(calm[1...5]), [0, 1, 0, 0, 0])
     }
 
+    func testHardRulesIgnoreFreeOfNotesButNotContainsNotes() {
+        // Gemma wrote "cornbread mix (ensure peanut-free)" in a live recipe on 2026-10-31.
+        let kept = ["cornbread mix (ensure peanut-free)", "Peanut free granola", "sauce with no peanuts", "non-peanut oil"]
+        let removed = ["peanut butter", "satay sauce (contains peanuts)", "PEANUTS, crushed", "peanut-free bun and peanut sauce"]
+        for name in kept { XCTAssertFalse(HardRules.mentions(name, "peanut"), name) }
+        for name in removed { XCTAssertTrue(HardRules.mentions(name, "peanut"), name) }
+    }
+
     func testHardRulesRemoveAllergensTheModelLoves() {
         let model = trained()
         let menu = ["Peanut butter noodles", "Lemon chicken"]

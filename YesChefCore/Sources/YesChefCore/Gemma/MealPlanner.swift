@@ -57,10 +57,8 @@ public struct MealPlanner: Sendable {
 
     // The prompt asks Gemma to avoid these, and this check refuses a recipe that slipped through.
     static func checkSafe(_ recipe: RecipeDetail, household: Household) throws {
-        let names = recipe.ingredients.map(\.name)
-        if HardRules.excluding([names], ingredients: { $0 }, banned: household.bannedTerms).isEmpty {
-            let terms = household.bannedTerms.map { $0.lowercased().trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-            let hit = names.first { name in terms.contains { name.lowercased().contains($0) } } ?? "a banned ingredient"
+        let terms = household.bannedTerms.map { $0.lowercased().trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        if let hit = recipe.ingredients.map(\.name).first(where: { name in terms.contains { HardRules.mentions(name, $0) } }) {
             throw GemmaError.unsafeRecipe(ingredient: hit)
         }
     }

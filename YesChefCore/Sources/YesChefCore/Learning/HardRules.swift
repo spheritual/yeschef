@@ -10,8 +10,18 @@ public enum HardRules {
             .filter { !$0.isEmpty }
         guard !terms.isEmpty else { return items }
         return items.filter { item in
-            let names = ingredients(item).map { $0.lowercased() }
-            return !names.contains { name in terms.contains { name.contains($0) } }
+            !ingredients(item).contains { name in terms.contains { mentions(name, $0) } }
         }
+    }
+
+    // Gemma writes notes like "cornbread mix (ensure peanut-free)". Phrases saying the item is
+    // free of the term are cut before matching, and anything else naming the term still counts,
+    // which keeps "(contains peanuts)" a match.
+    static func mentions(_ ingredient: String, _ term: String) -> Bool {
+        var text = ingredient.lowercased()
+        for phrase in ["\(term)-free", "\(term) free", "free of \(term)", "free from \(term)", "no \(term)", "without \(term)", "non-\(term)"] {
+            text = text.replacingOccurrences(of: phrase, with: " ")
+        }
+        return text.contains(term)
     }
 }
