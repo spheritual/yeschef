@@ -43,6 +43,8 @@ The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?
 
 The Linux laptop has Swift 6.3.2 and can't build SwiftUI, which keeps its agent on `YesChefCore` and the docs.
 
+As of 13:05 the Linux laptop is writing the Gemma side in `YesChefCore/Sources/YesChefCore/Gemma/`: a `GemmaClient` for the Gemini API and a `MealPlanner` with `planWeek`, `recipe(for:)`, `askChef` and `recipeFromImage`, plus `SampleData` for previews. The MacBook builds the screens against `SampleData` and doesn't write its own Gemini client. The real calls land on `main` by about 13:40.
+
 ## Principles
 
 - Clean and minimalist, in code and in UI.
