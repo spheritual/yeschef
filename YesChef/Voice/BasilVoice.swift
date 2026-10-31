@@ -1,8 +1,13 @@
 import AVFoundation
+import Observation
 import SwiftUI
 
-/// The `@AppStorage` key for the mute toggle. `ChatView` has the switch.
-let basilMutedKey = "basilMuted"
+/// Whether Basil is muted. Kept in memory only, since the demo saves nothing. `ChatView` has the switch.
+@MainActor @Observable
+final class BasilVoiceSettings {
+    static let shared = BasilVoiceSettings()
+    var muted = false
+}
 
 extension View {
     /// Speaks each new Basil message out loud, unless muted. Speech stops when a new question starts.
@@ -11,7 +16,7 @@ extension View {
 
 private struct BasilVoice: ViewModifier {
     @Environment(AppModel.self) private var model
-    @AppStorage(basilMutedKey) private var muted = false
+    private var settings = BasilVoiceSettings.shared
     @State private var speaker = AVSpeechSynthesizer()
 
     func body(content: Content) -> some View {
@@ -20,13 +25,13 @@ private struct BasilVoice: ViewModifier {
             .onChange(of: model.messages) { old, new in
                 let fresh = new.dropFirst(old.count)
                 if fresh.contains(where: { $0.speaker == .user }) { speaker.stopSpeaking(at: .immediate) }
-                guard !muted, let reply = fresh.last(where: { $0.speaker == .basil }) else { return }
+                guard !settings.muted, let reply = fresh.last(where: { $0.speaker == .basil }) else { return }
                 speak(reply.text)
             }
             .onChange(of: model.mood) { _, mood in
                 if mood == .listening { speaker.stopSpeaking(at: .immediate) }
             }
-            .onChange(of: muted) { _, muted in
+            .onChange(of: settings.muted) { _, muted in
                 if muted { speaker.stopSpeaking(at: .immediate) }
             }
     }

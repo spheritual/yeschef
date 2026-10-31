@@ -5,7 +5,7 @@ struct ChatView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @AppStorage(basilMutedKey) private var muted = false
+    private var voice = BasilVoiceSettings.shared
     @State private var draft = ""
     @FocusState private var typing: Bool
 
@@ -43,8 +43,8 @@ struct ChatView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(muted ? "Unmute Basil" : "Mute Basil", systemImage: muted ? "speaker.slash" : "speaker.wave.2") {
-                        muted.toggle()
+                    Button(voice.muted ? "Unmute Basil" : "Mute Basil", systemImage: voice.muted ? "speaker.slash" : "speaker.wave.2") {
+                        voice.muted.toggle()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
