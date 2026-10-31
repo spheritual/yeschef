@@ -23,8 +23,10 @@ nonisolated struct ChatMessage: Identifiable, Hashable, Sendable {
 @Observable
 final class AppModel {
     var household = SampleData.household
-    var busyDays: Set<String> = ["Wednesday"]
-    var plan = SampleData.weekPlan
+    /// Demo stand-in for a calendar: the second planned day is the busy one, so the quick-dinner
+    /// rule is visible in every demo.
+    var busyDays: Set<String>
+    var plan: WeekPlan
     /// The shopping list, written to a file after every change, which keeps checked items through
     /// closing the page and restarting the app. It's the one thing the demo saves.
     var shopping = ShoppingList.load(from: AppModel.shoppingFile) ?? ShoppingList(plan: SampleData.weekPlan)
@@ -48,15 +50,43 @@ final class AppModel {
     var isOffline: Bool { planner == nil }
 
     init(apiKey: String? = AppSecrets.geminiAPIKey) {
+        let days = Self.upcomingDays()
+        let busy = days[1]
+        busyDays = [busy]
+        // The sample week, relabelled so its days start today like a real plan would.
+        var sample = SampleData.weekPlan
+        for index in sample.days.indices {
+            sample.days[index].day = days[index]
+            sample.days[index].isBusy = days[index] == busy
+        }
+        plan = sample
         planner = apiKey.map { MealPlanner(model: GemmaClient(apiKey: $0)) }
     }
+
+    /// The names of the next `count` days starting today, in the form `MealPlanner.weekdays` uses.
+    static func upcomingDays(count: Int = 3, from date: Date = .now, calendar: Calendar = .current) -> [String] {
+        (0..<count).map { offset in
+            let day = calendar.date(byAdding: .day, value: offset, to: date) ?? date
+            // Calendar numbers Sunday as 1; MealPlanner.weekdays starts on Monday.
+            return MealPlanner.weekdays[(calendar.component(.weekday, from: day) + 5) % 7]
+        }
+    }
+
+    /// Whether a day name is on the busy list. Cook mode passes this to `record(_:for:onBusyDay:)`.
+    func isBusy(_ day: String) -> Bool { busyDays.contains(day) }
+
+    /// The planned day a dinner sits on, or nil for an imported recipe.
+    func day(of idea: DinnerIdea) -> String? { plan.days.first { $0.pick == idea }?.day }
+
+    /// Whether this dinner sits on a busy day, for `record(_:for:onBusyDay:)`.
+    func isOnBusyDay(_ idea: DinnerIdea) -> Bool { day(of: idea).map(isBusy) ?? false }
 
     func planWeek() async {
         guard let planner else { return say("I'm offline, so here's my sample week.") }
         await run("Planning your week…", retry: { [weak self] in await self?.planWeek() }) {
-            // Three days keeps the demo's wait short; the planner takes any list of days.
+            // Three days from today keeps the demo's wait short; the planner takes any list of days.
             self.plan = try await planner.planWeek(
-                for: self.household, days: Array(MealPlanner.weekdays.prefix(3)),
+                for: self.household, days: Self.upcomingDays(),
                 busyDays: self.busyDays, learning: Array(self.learning.values))
             self.shopping.sync(with: self.plan)
             self.saveShopping()
@@ -68,8 +98,8 @@ final class AppModel {
     func open(_ idea: DinnerIdea) async {
         recipeIdea = idea
         guard let planner else {
-            recipe = SampleData.recipe
-            return say("I'm offline, so here's my sample recipe.")
+            recipe = Self.sampleRecipe(for: idea)
+            return say("Here's \(idea.title). Tap Start cooking when you're ready.", mood: .teaching)
         }
         await run("Getting the recipe for \(idea.title)…", teaching: true, retry: { [weak self] in await self?.open(idea) }) {
             self.recipe = try await planner.recipe(for: idea, household: self.household)
@@ -81,7 +111,10 @@ final class AppModel {
     /// recipe has no `recipeIdea`, so cooking it doesn't feed the learning models.
     func importRecipe(from image: Data, mimeType: String = "image/jpeg") async {
         recipeIdea = nil
-        guard let planner else { return say("I'm offline, so I can't read photos right now.") }
+        guard let planner else {
+            recipe = SampleData.recipe
+            return say("Got it: \(SampleData.recipe.title). Tap Start cooking when you're ready.", mood: .teaching)
+        }
         await run("Reading your recipe…", teaching: true, retry: { [weak self] in await self?.importRecipe(from: image, mimeType: mimeType) }) {
             let recipe = try await planner.recipeFromImage(image, mimeType: mimeType, household: self.household)
             self.recipe = recipe
@@ -93,7 +126,7 @@ final class AppModel {
     /// Answers a question from the mic or the chat, about one cooking step when `step` is set.
     func ask(_ question: String, step: RecipeDetail.Step? = nil) async {
         messages.append(ChatMessage(speaker: .user, text: question))
-        guard let planner else { return say("I can't reach Gemma right now, so I can't answer that one.") }
+        guard let planner else { return say(Self.cannedAnswer(step: step), mood: .teaching) }
         await run("Thinking…", teaching: true, retry: { [weak self] in await self?.ask(question, step: step) }) {
             // When the cook decides on something else for a day, Basil's reply carries the change.
             let reply = try await planner.reply(to: question, plan: self.plan, household: self.household, step: step, recipe: self.recipe)
@@ -117,6 +150,27 @@ final class AppModel {
         plan = plan.replacing(day: change.day, with: change.idea)
         shopping.sync(with: plan)
         saveShopping()
+    }
+
+    /// The offline recipe for a dinner: the fajitas as written, or a short generic one built from
+    /// the dinner's own ingredients so the title always matches what was tapped.
+    private static func sampleRecipe(for idea: DinnerIdea) -> RecipeDetail {
+        if idea.title == SampleData.fajitas.title { return SampleData.recipe }
+        return RecipeDetail(
+            title: idea.title, servings: 4, minutes: idea.features.minutes,
+            ingredients: idea.ingredients.map { .init(name: $0, amount: "1", unit: "") },
+            steps: [
+                .init(instruction: "Prep everything: wash, chop and measure \(idea.ingredients.prefix(3).joined(separator: ", ")).", technique: "Having it all ready means nothing burns while you hunt for the next thing.", timerSeconds: nil),
+                .init(instruction: "Cook the main ingredients over medium heat until golden.", technique: "Medium heat browns without scorching, which is where the flavour comes from.", timerSeconds: 600),
+                .init(instruction: "Season, taste, and adjust.", technique: "Salt a little at a time. You can add more but you can't take it out.", timerSeconds: nil),
+                .init(instruction: "Plate it up and serve while it's hot.", technique: "Resting for a minute lets the juices settle so it tastes better.", timerSeconds: nil),
+            ])
+    }
+
+    /// A sensible offline answer: the step's technique when asked mid-step, a general tip otherwise.
+    private static func cannedAnswer(step: RecipeDetail.Step?) -> String {
+        if let step { return "Good question. \(step.technique) If it looks off, give it another minute and trust your nose." }
+        return "Good question. Taste as you go, keep the heat at medium, and don't crowd the pan. That fixes most dinner problems."
     }
 
     /// Updates every member's preference model with one piece of feedback.
