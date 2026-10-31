@@ -109,6 +109,8 @@ private final class Listener {
     private(set) var isStarting = false
     private var heard = false
     private let engine = AVAudioEngine()
+    // Kept for the whole session, since a local one was released as soon as start() returned.
+    private var recognizer: SFSpeechRecognizer?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
     private var pause: Task<Void, Never>?
@@ -153,6 +155,7 @@ private final class Listener {
         let (stream, continuation) = AsyncThrowingStream<String, Error>.makeStream()
         output = continuation
         self.request = request
+        self.recognizer = recognizer
         isListening = true
         heard = false
         task = Self.recognize(recognizer, request) { [weak self] text, isFinal, problem in
@@ -183,6 +186,7 @@ private final class Listener {
         task?.cancel()
         request = nil
         task = nil
+        recognizer = nil
         output?.finish()
         output = nil
         let session = AVAudioSession.sharedInstance()
