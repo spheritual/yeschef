@@ -34,7 +34,7 @@ The full list, with what's in the demo and what comes later, is in
 The app uses Gemma 4 (`gemma-4-26b-a4b-it`), Google's open-weight model, through the Gemini
 API. Gemma 4 is released under the [Apache 2.0 license](https://ai.google.dev/gemma/apache_2), and
 its use is covered by the [Gemma terms of use](https://ai.google.dev/gemma/terms). Gemma plans the
-week, reads recipes from screenshots and links, and answers cooking questions.
+week, reads recipes from photos and screenshots, and answers cooking questions.
 
 ## How it learns
 
@@ -79,19 +79,36 @@ need a small server that holds the key.
 
 - Swift and SwiftUI, from Apple
 - The Gemini API, from Google, serving Gemma 4
-- Apple's own frameworks for speech, notifications, the calendar and health data, as each
-  feature lands
+- Apple's own frameworks for speech in and out, notifications and the photo picker
+- Six public-domain cookbooks from Project Gutenberg, bundled as recipe passages
 
 The app adds no third-party Swift packages.
 
+## Design
+
+- Diagrams: [docs/design/yeschef.drawio](docs/design/yeschef.drawio), with 13 tabs covering
+  context, components, use cases, class diagrams, sequences, Basil's moods, the learning loop,
+  deployment, navigation, wireframes and the file structure.
+- Exported diagrams: [docs/design/export/](docs/design/export/), with a PNG and an SVG per tab and
+  [the whole set as a PDF](docs/design/export/yeschef-design.pdf).
+- The code that draws them: [docs/design/build_diagrams.py](docs/design/build_diagrams.py).
+- Feature sheet: [docs/design/feature-sheet.md](docs/design/feature-sheet.md).
+- Figma screens, Basil's SVGs, design tokens and Figma's generated screen code:
+  [design/](design/README.md).
+
 ## Repo layout
 
-- `YesChefCore/`: the Swift package for non-UI code, starting with the learning model
-- `docs/`: [requirements](docs/requirements.md) and [architecture](docs/architecture.md), with
-  diagrams of the system, the data model, the main flows and the screens
-- `.plans/`: the coding checklist and the feedback learning spec
+- `YesChef/` and `YesChef.xcodeproj/`: the iPhone app
+- `YesChefCore/`: the Swift package for the Gemma calls, the cookbook search and the learning
+- `YesChefDemo/`: the terminal demo
+- `docs/`: [requirements](docs/requirements.md), [architecture](docs/architecture.md) and the
+  [design set](docs/design/README.md)
+- `design/`: the Figma exports
+- `.plans/`: the task list and the feedback learning spec
 - `.claude/` and `.mcp.json`: the coding-agent skills and the Figma MCP server the team used
   while building
+- `RESOURCES.MD`: the sources the team chose for Gemma to draw on
+- `gummi-main/`: another team's project, kept as reference and not part of yeschef!
 
 ## AI tools we used
 
@@ -104,4 +121,6 @@ The app adds no third-party Swift packages.
 
 yeschef! is released under the [Apache 2.0 license](LICENSE). The two SwiftUI skills in
 `.claude/skills/swiftui-pro` and `.claude/skills/swiftui-expert-skill` come from Paul Hudson and
-Antoine van der Lee under the MIT license, with their license files alongside them.
+Antoine van der Lee under the MIT license, with their license files alongside them. The cookbook
+passages come from six books that are in the public domain in the US, listed in
+`YesChefCore/Scripts/build_cookbooks.py`.

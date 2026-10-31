@@ -1,12 +1,17 @@
 # yeschef! design set
 
-This folder is the software design for yeschef!, drawn to match the code on `main`. The diagrams
-live in one draw.io file, [yeschef.drawio](yeschef.drawio), with a tab for each view. Open it at
-<https://app.diagrams.net> (File, then Open from, then Device) or in VS Code with the Draw.io
-Integration extension. [build_diagrams.py](build_diagrams.py) generates that file from plain
-Python with no dependencies, which means a design change gets made in the script and the file is
-rebuilt, instead of being hand-edited. The [feature sheet](feature-sheet.md) lists every feature
-with its screens, its Gemma call and its status.
+This folder is the software design for yeschef!, drawn to match the code on `main`.
+
+- [yeschef.drawio](yeschef.drawio) holds the diagrams, one tab per view. Open it at
+  <https://app.diagrams.net> (File, then Open from, then Device) or in VS Code with the Draw.io
+  Integration extension.
+- [export/](export/) has every tab as a PNG and as an SVG, both still editable in draw.io, and the
+  whole set as one PDF, [yeschef-design.pdf](export/yeschef-design.pdf).
+- [build_diagrams.py](build_diagrams.py) is the code that draws them, in plain Python with no
+  dependencies. A design change is made there, then `python3 build_diagrams.py --export` rebuilds
+  the file and the exports with the draw.io app.
+- [feature-sheet.md](feature-sheet.md) lists every feature with its screens, its Gemma call and its
+  status.
 
 ## The tabs
 
@@ -29,8 +34,9 @@ with its screens, its Gemma call and its status.
 The finished visual design is in [design/](../../design/README.md), which holds Figma renders of
 all 14 screens, Basil's SVGs, the color and type tokens, and the code Figma generates for each
 screen.
-The requirements are in [requirements.md](../requirements.md), and Mermaid versions of the main
-flows render on GitHub in [architecture.md](../architecture.md).
+The requirements are in [requirements.md](../requirements.md), and
+[architecture.md](../architecture.md) keeps the planned storage, the photo import flow and what data
+leaves the phone.
 
 ## What a full design set covers
 
