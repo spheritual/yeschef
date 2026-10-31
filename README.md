@@ -93,6 +93,8 @@ The app adds no third-party Swift packages.
   [the whole set as a PDF](docs/design/export/yeschef-design.pdf).
 - The code that draws them: [docs/design/build_diagrams.py](docs/design/build_diagrams.py).
 - Feature sheet: [docs/design/feature-sheet.md](docs/design/feature-sheet.md).
+- Technical details, such as the Thompson sampling, the cookbook search and the allergy checks,
+  each linked to its diagram: [docs/technical-details.md](docs/technical-details.md).
 - Figma screens, Basil's SVGs, design tokens and Figma's generated screen code:
   [design/](design/README.md).
 
