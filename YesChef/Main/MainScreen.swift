@@ -98,6 +98,14 @@ struct MainScreen: View {
                 DayCard(day: day, isOpen: day.pick == model.recipeIdea) {
                     Task { await model.open(day.pick) }
                 }
+                // Long-press a day to swap its dinner for one of the other ideas.
+                .contextMenu {
+                    ForEach(day.alternatives) { idea in
+                        Button("Swap for \(idea.title)", systemImage: "arrow.triangle.2.circlepath") {
+                            model.swap(day.day, to: idea)
+                        }
+                    }
+                }
             }
             LearningCard()
         }

@@ -59,6 +59,28 @@ public struct MealPlanner: Sendable {
         return try await model.generate(prompt: Prompts.question(question, step: step, recipe: recipe, references: passages), system: Prompts.chef, image: nil, imageMIMEType: "image/jpeg")
     }
 
+    // Answers the cook and picks up a plan change when they decide on something else. A change
+    // for a day that isn't planned, or one naming a banned ingredient, is dropped. If Gemma can't
+    // manage the JSON, the cook still gets a plain answer.
+    public func reply(to message: String, plan: WeekPlan, household: Household, step: RecipeDetail.Step? = nil, recipe: RecipeDetail? = nil) async throws -> ChefReply {
+        let passages = references(for: message + " " + (recipe?.title ?? ""), limit: 2)
+        let decoded: ChefReplyJSON
+        do {
+            decoded = try await askJSON(ChefReplyJSON.self, prompt: Prompts.reply(message, plan: plan, household: household, step: step, recipe: recipe, references: passages))
+        } catch GemmaError.notJSON {
+            return ChefReply(answer: try await askChef(message, step: step, recipe: recipe), change: nil)
+        } catch is DecodingError {
+            return ChefReply(answer: try await askChef(message, step: step, recipe: recipe), change: nil)
+        }
+        let change = decoded.change.flatMap { proposed -> PlanChange? in
+            guard plan.days.contains(where: { $0.day.lowercased() == proposed.day.lowercased() }),
+                  !HardRules.excluding([proposed.idea], ingredients: \.ingredients, banned: household.bannedTerms).isEmpty
+            else { return nil }
+            return PlanChange(day: proposed.day, idea: proposed.idea)
+        }
+        return ChefReply(answer: decoded.answer, change: change)
+    }
+
     // One retry covers the common case of a reply that's almost JSON.
     private func askJSON<T: Decodable>(_ type: T.Type, prompt: String, image: Data? = nil, mimeType: String = "image/jpeg") async throws -> T {
         let first = try await model.generate(prompt: prompt, system: Prompts.chef, image: image, imageMIMEType: mimeType)

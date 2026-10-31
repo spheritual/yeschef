@@ -72,5 +72,20 @@ enum Prompts {
         return context + "The cook asks: \(question)\nAnswer in at most three short sentences, in plain words, as Basil."
     }
 
+    // A chat turn that can also change the plan, when the cook decides on something else.
+    static func reply(_ message: String, plan: WeekPlan, household: Household, step: RecipeDetail.Step?, recipe: RecipeDetail?, references: [Cookbook.Passage]) -> String {
+        let days = plan.days.map { "- \($0.day): \($0.pick.title)" }.joined(separator: "\n")
+        return question(message, step: step, recipe: recipe, references: references) + """
+
+            The plan this week:
+            \(days)
+            Household:
+            \(Self.household(household))
+            If the cook wants a different dinner on one of those days, put it in "change". Never put in anything a household member must never eat. Otherwise make "change" null.
+            Reply with JSON in exactly this shape:
+            {"answer":"What Basil says, at most three short sentences.","change":{"day":"Tuesday","title":"Beef tacos","summary":"One sentence.","protein":"beef","flavours":["spicy"],"minutes":25,"difficulty":"easy","costPerServing":3,"ingredients":["ground beef","tortillas"]}}
+            """
+    }
+
     static let retry = "Your last reply wasn't valid JSON in the requested shape. Reply again with only the JSON object."
 }

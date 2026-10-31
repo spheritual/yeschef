@@ -90,8 +90,27 @@ final class AppModel {
         messages.append(ChatMessage(speaker: .user, text: question))
         guard let planner else { return say("I can't reach Gemma right now, so I can't answer that one.") }
         await run("Thinking…", teaching: true, retry: { [weak self] in await self?.ask(question, step: step) }) {
-            try await planner.askChef(question, step: step, recipe: self.recipe)
+            // When the cook decides on something else for a day, Basil's reply carries the change.
+            let reply = try await planner.reply(to: question, plan: self.plan, household: self.household, step: step, recipe: self.recipe)
+            if let change = reply.change { self.apply(change) }
+            return reply.answer
         }
+    }
+
+    /// Swaps a day's dinner for one of its other ideas, from the day card's menu.
+    func swap(_ day: String, to idea: DinnerIdea) {
+        apply(PlanChange(day: day, idea: idea))
+        say("Okay, \(day) is \(idea.title) now.")
+    }
+
+    /// Puts a new dinner on a day, counts the old one as swapped out, and updates the shopping list.
+    private func apply(_ change: PlanChange) {
+        guard let old = plan.days.first(where: { $0.day.lowercased() == change.day.lowercased() }),
+              old.pick.title != change.idea.title else { return }
+        record(.swapped, for: old.pick, onBusyDay: old.isBusy)
+        plan = plan.replacing(day: change.day, with: change.idea)
+        shopping.sync(with: plan)
+        saveShopping()
     }
 
     /// Updates every member's preference model with one piece of feedback.
