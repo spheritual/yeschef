@@ -25,7 +25,7 @@ a server we don't have yet.
 | BR-07 | Respect the kitchen the user has that day, such as no fridge, stove or microwave while on the go. | Next | TR-03 |
 | BR-08 | Keep the week's groceries within a budget the user sets. | Next | TR-19 |
 | BR-09 | Hold several profiles under one account, such as children, each with their own preferences and needs. | Next | TR-05 |
-| BR-10 | Give the assistant a chef character the user talks to by voice or text, who answers out loud and does a cooking animation while he works. | Demo | TR-11, TR-12, TR-21 |
+| BR-10 | Give the assistant a chef character the user talks to by voice or text, who answers out loud. He cooks with a frying pan only while he's thinking, looks at a clock on the wall while a timer runs, hops up and down while the user talks to him, and pulls out a cookbook to teach from. | Demo | TR-11, TR-12, TR-21 |
 | BR-11 | Compare deals at nearby stores and turn the shopping list into a drive-up pickup list. | Later | TR-19 |
 | BR-12 | Let the user place a pickup order with stores that offer car pickup. | Later | TR-19 |
 | BR-13 | Let users connect with each other and share recipes and plans. | Later | TR-18 |
@@ -34,6 +34,10 @@ a server we don't have yet.
 | BR-16 | Plan around health goals, covering macros, calories, fiber and sugar, and specific diets. | Next | TR-03, TR-22 |
 | BR-17 | Plan around each profile's flavour preferences and the time they have to cook. | Demo | TR-03, TR-05 |
 | BR-18 | Give the user points for using the app regularly, with streaks, and let them spend the points dressing up the chef and his kitchen. | Next | TR-05, TR-23 |
+| BR-19 | Check in once a week, on the household's grocery shopping day, to plan the coming week and build that week's shopping list. | Next | TR-25 |
+| BR-20 | Make the plan editable. A default plan comes first, and any meal can be changed to a custom one, with the user choosing who from the household is eating and adding guests for that day. | Next | TR-26 |
+| BR-21 | Teach techniques with short videos on a Learning page of their own, also linked from the recipe step that uses each technique. | Next | TR-27 |
+| BR-22 | Give the chef reactions and life. A bad rating makes him spit at the screen as if it were a camera, covering it; a great rating gets sparkles and a belly rub; he walks around his stage; and a bell gets his attention. | Demo for the rating reactions, Next for the rest | TR-28 |
 
 ## Technical requirements
 
@@ -63,3 +67,7 @@ a server we don't have yet.
 | TR-22 | Each recipe stores calories, protein, carbs, fat, fiber and sugar per serving. Where those numbers come from (Gemma's estimate or a nutrition database) is open, and the UI labels an estimate as one. |
 | TR-23 | Points and streaks are kept in the local database as a log of dated actions, which lets the streak be recomputed and never just counted up. Outfits and kitchen items cost points only, with no real money. |
 | TR-24 | Gemma's prompts are grounded in recipe passages from six public-domain cookbooks on Project Gutenberg, bundled with the app and searched on the phone with BM25. Passages naming a banned ingredient are dropped, and an idea based on a passage names its book. No web search or outside search service is involved. |
+| TR-25 | The household picks a shopping day. A weekly local notification (UserNotifications with a repeating calendar trigger) asks Basil to plan the seven days that start on that day, and the shopping list covers exactly those seven days. Today the plan only runs when someone asks, and the demo plans Monday to Wednesday. |
+| TR-26 | Each planned meal stores who's eating it and how many guests are coming. The planner applies the allergy rules and the preference models of only those eating, scales servings to the eaters plus guests, and the plan's default comes from the whole household. Today the household is the sample household and can't be edited. |
+| TR-27 | Technique videos are linked out to their source, not copied into the app, because the licenses of the team's chosen sources in RESOURCES.MD are unverified. A table maps each technique to a video, and a recipe step links the technique its note names. |
+| TR-28 | The rating reactions run as Basil moods in the app (yum and yuck). The bad-rating spit still has to cover the whole screen as a full-screen overlay, where it now stays around Basil; walking is an idle movement across the stage; the bell is a tap target on the stage that makes him turn and listen. |

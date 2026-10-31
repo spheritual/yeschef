@@ -15,7 +15,12 @@ to [requirements.md](../requirements.md).
 | Cook mode with timers | Goes through one step at a time | Cook mode | none | On main (MacBook) | BR-02 |
 | Ask Basil | Asks by voice or text, about the step or anything | Subtitle bar, Chat | `askChef`: a short answer in Basil's voice | On main; live call runs | BR-02, BR-10 |
 | Basil speaks and listens | Hears answers out loud; talks to the mic | Main screen, Chat | none, Apple's speech frameworks on the phone | On main (MacBook) | BR-10 |
-| Basil's moods | Watches him cook while Gemma works | Main screen | none | On main (MacBook) | BR-10 |
+| Basil's moods | Watches him cook with the pan while Gemma thinks, hop while listening, read from a cookbook when teaching, and watch the wall clock during a timer | Main screen, Cook mode | none | On main since c80627a, not yet built on the Mac | BR-10 |
+| Rating reactions | Sees sparkles and a belly rub for 4 or 5 stars, and a spit at the screen for 1 or 2 | Main screen | none | On main since c80627a, not yet built; the spit stays around Basil and doesn't cover the screen yet | BR-22 |
+| Weekly check-in | Gets asked on shopping day to plan the coming week | none yet | `planWeek` for the seven days from shopping day | Planned | BR-19 |
+| Editable meals and guests | Changes a meal, picks who's eating and adds guests | This week | the allergy rules and models of only those eating | Planned | BR-20 |
+| Technique videos | Watches a short video on a technique | Learning page, recipe steps | none | Planned; source licenses unverified | BR-21 |
+| Basil walks and the bell | Rings a bell to get Basil's attention and sees him walk his stage | Main screen | none | Planned | BR-22 |
 | Photo recipe import | Picks a photo or screenshot of a recipe | Import a recipe | `recipeFromImage`: Gemma reads the image | On main; live call read the team's salmon screen | BR-05 |
 | Shopping list | Opens the list for the week | Shopping list | none, built from the plan's ingredients | On main | BR-04 |
 | Rating and learning | Rates a dinner 1 to 5 stars | Rating sheet, Learning card | none, Thompson sampling on the phone | On main; tested, and the terminal demo shows it learning | BR-03, BR-17 |
