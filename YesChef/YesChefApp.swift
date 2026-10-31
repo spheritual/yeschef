@@ -8,6 +8,9 @@ struct YesChefApp: App {
         WindowGroup {
             ContentView()
                 .environment(model)
+                #if DEBUG
+                .task { await DemoScript.run(model) }
+                #endif
         }
     }
 }

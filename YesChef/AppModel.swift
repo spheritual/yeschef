@@ -34,6 +34,7 @@ final class AppModel {
 
     private let planner: MealPlanner?
     private var retryJob: (() async -> Void)?
+    private var quietDown: Task<Void, Never>?
 
     var isOffline: Bool { planner == nil }
 
@@ -59,6 +60,18 @@ final class AppModel {
         await run("Getting the recipe for \(idea.title)…", retry: { [weak self] in await self?.open(idea) }) {
             self.recipe = try await planner.recipe(for: idea, household: self.household)
             return "Here's \(idea.title). Tap Start cooking when you're ready."
+        }
+    }
+
+    /// Reads a recipe from a photo or screenshot, which shows Gemma reading images. An imported
+    /// recipe has no `recipeIdea`, so cooking it doesn't feed the learning models.
+    func importRecipe(from image: Data, mimeType: String = "image/jpeg") async {
+        recipeIdea = nil
+        guard let planner else { return say("I'm offline, so I can't read photos right now.") }
+        await run("Reading your recipe…", retry: { [weak self] in await self?.importRecipe(from: image, mimeType: mimeType) }) {
+            let recipe = try await planner.recipeFromImage(image, mimeType: mimeType, household: self.household)
+            self.recipe = recipe
+            return "Got it: \(recipe.title). Tap Start cooking when you're ready."
         }
     }
 
@@ -90,6 +103,13 @@ final class AppModel {
         subtitle = text
         messages.append(ChatMessage(speaker: .basil, text: text))
         mood = .talking
+        // Back to idle after about as long as it takes to say it, whether or not he's muted.
+        quietDown?.cancel()
+        quietDown = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(min(max(Double(text.count) / 15, 2), 12)))
+            guard !Task.isCancelled, let self, self.mood == .talking else { return }
+            self.mood = .idle
+        }
     }
 
     private func run(_ status: String, retry: @escaping () async -> Void, _ job: () async throws -> String) async {

@@ -1,0 +1,32 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="136" height="153" viewBox="0 0 136 153" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Basil the chef">
+<ellipse id="Ground" cx="69.275" cy="145.35" rx="43.775" ry="4.25" fill="#263B2E" fill-opacity="0.0705882"/>
+<ellipse id="Shoe" cx="85.85" cy="140.2" rx="11.9" ry="6.8" fill="#263B2E"/>
+<ellipse id="Shoe_2" cx="52.7" cy="140.2" rx="11.9" ry="6.8" fill="#263B2E"/>
+<rect id="Chef coat" x="26.985" y="83.085" width="82.03" height="53.98" rx="18.065" fill="#FFFEF8" stroke="#263B2E" stroke-width="1.27"/>
+<rect id="Spoon handle" x="110.5" y="66.3" width="3.40001" height="36.55" rx="1.7" transform="rotate(15 110.5 66.3)" fill="#A17143"/>
+<ellipse id="Spoon bowl" cx="110.427" cy="66.6714" rx="5.95" ry="9.35" transform="rotate(15 110.427 66.6714)" fill="#C29465"/>
+<path id="Hand" d="M110.075 88.1047C115.145 88.1049 119.295 92.4011 119.295 97.7502C119.295 103.099 115.145 107.395 110.075 107.395C105.005 107.395 100.855 103.099 100.855 97.7502C100.855 92.4009 105.005 88.1047 110.075 88.1047Z" fill="#F0C59F" stroke="#263B2E" stroke-width="1.11"/>
+<path id="Hand_2" d="M26.7754 94.9047C31.8453 94.9049 35.9951 99.201 35.9951 104.55C35.995 109.899 31.8452 114.195 26.7754 114.195C21.7054 114.195 17.5548 109.899 17.5547 104.55C17.5547 99.2009 21.7053 94.9047 26.7754 94.9047Z" fill="#F0C59F" stroke="#263B2E" stroke-width="1.11"/>
+<path id="Apron" d="M39.95 98.6C39.95 94.8445 42.9945 91.8 46.75 91.8H89.25C93.0055 91.8 96.05 94.8445 96.05 98.6V125.8C96.05 132.842 90.3416 138.55 83.3 138.55H52.7C45.6584 138.55 39.95 132.842 39.95 125.8V98.6Z" fill="#386347"/>
+<g id="Apron pocket">
+<path d="M54.4 118.3C54.4 117.748 54.8477 117.3 55.4 117.3H80.6C81.1523 117.3 81.6 117.748 81.6 118.3V123.25C81.6 127.475 78.175 130.9 73.95 130.9H62.05C57.825 130.9 54.4 127.475 54.4 123.25V118.3Z" fill="white" fill-opacity="0.152941"/>
+<path d="M55.4 117.725H80.6002C80.9177 117.725 81.1754 117.983 81.1754 118.3V123.25C81.1753 127.24 77.94 130.475 73.9498 130.475H62.0504C58.0602 130.475 54.8249 127.24 54.8248 123.25V118.3C54.8248 117.982 55.0824 117.725 55.4 117.725Z" stroke="white" stroke-opacity="0.396078" stroke-width="0.85"/>
+</g>
+<ellipse id="Ear" cx="98.6" cy="65.025" rx="7.65" ry="9.775" fill="#F0C59F"/>
+<ellipse id="Ear_2" cx="37.4" cy="65.025" rx="7.65" ry="9.775" fill="#F0C59F"/>
+<rect id="Face" x="37.145" y="33.745" width="61.71" height="54.06" rx="24.905" fill="#F0C59F" stroke="#263B2E" stroke-width="1.19"/>
+<ellipse id="Cheek" cx="88.825" cy="69.7" rx="6.375" ry="3.4" fill="#D98C6B" fill-opacity="0.396078"/>
+<ellipse id="Cheek_2" cx="48.025" cy="69.7" rx="6.375" ry="3.4" fill="#D98C6B" fill-opacity="0.396078"/>
+<ellipse id="Eye" cx="82.025" cy="59.925" rx="2.125" ry="2.975" fill="#263B2E"/>
+<ellipse id="Eye_2" cx="53.975" cy="59.925" rx="2.125" ry="2.975" fill="#263B2E"/>
+<ellipse id="Nose" cx="68" cy="65.875" rx="3.4" ry="3.825" fill="#DE9F79"/>
+<path id="Smile" d="M58.65 73.1C64.8564 82.1667 71.373 82.1667 78.2 73.1" stroke="#263B2E" stroke-width="1.53"/>
+<circle id="Hat puff" cx="89.675" cy="28.475" r="15.13" fill="#FFFEF8" stroke="#263B2E" stroke-width="1.19"/>
+<path id="Hat puff_2" d="M48.45 11.6447C57.5245 11.6447 64.8553 18.8138 64.8553 27.6252C64.8552 36.4365 57.5245 43.6047 48.45 43.6047C39.3755 43.6047 32.0448 36.4365 32.0447 27.6252C32.0447 18.8138 39.3755 11.6447 48.45 11.6447Z" fill="#FFFEF8" stroke="#263B2E" stroke-width="1.19"/>
+<path id="Hat puff_3" d="M69.2754 3.14473C79.0024 3.14495 86.955 11.593 86.9551 22.0998C86.9551 32.6067 79.0024 41.0547 69.2754 41.0549C59.5482 41.0549 51.5947 32.6068 51.5947 22.0998C51.5948 11.5929 59.5482 3.14473 69.2754 3.14473Z" fill="#FFFEF8" stroke="#263B2E" stroke-width="1.19"/>
+<rect id="Hat band" x="37.995" y="31.195" width="60.86" height="16.66" rx="4.505" fill="#FFFEF8" stroke="#263B2E" stroke-width="1.19"/>
+<rect id="Neckerchief" x="54.4" y="85" width="27.2" height="7.65" rx="3.4" fill="#BC5039"/>
+<ellipse id="Scarf knot" cx="68.425" cy="93.075" rx="3.825" ry="5.525" fill="#BC5039"/>
+</g>
+</svg>

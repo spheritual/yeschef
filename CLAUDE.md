@@ -18,7 +18,7 @@ A personal AI cooking assistant. Gemma 4 is the brain, Swift/SwiftUI is the stac
 
 - Swift 6 / SwiftUI, an iOS app built in Xcode on the MacBook
 - Gemma 4 through the Gemini API (`gemma-4-26b-a4b-it`), called over REST with `URLSession`. The Gemma prize is for models "via the Gemini API", which rules out on-device for the prize.
-- One local SQLite database, through SwiftData or the sqlite3 library (still open)
+- No storage for the demo: the app keeps everything in memory and saves nothing, not even settings (decided at 13:22). One local SQLite database, through SwiftData or the sqlite3 library, comes after the hackathon.
 
 ## Docs
 
@@ -28,7 +28,7 @@ A personal AI cooking assistant. Gemma 4 is the brain, Swift/SwiftUI is the stac
 
 ## Design
 
-The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?node-id=1-2>. The team's screens call the app Sprig and the chef Basil, with Fraunces headings, Inter body text, a cream background (`#f8f5ec`), dark green text (`#263b2e`) and green buttons (`#386347`). Three proposal frames sit to the right of them: the main screen (node `9:2`), the burger menu open (`9:82`) and Basil cooking as the loading state (`9:183`). Whether the app is called Sprig or yeschef! is still open.
+The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?node-id=1-2>. The team's screens call the app Sprig and the chef Basil, with Fraunces headings, Inter body text, a cream background (`#f8f5ec`), dark green text (`#263b2e`) and green buttons (`#386347`). Three proposal frames sit to the right of them: the main screen (node `9:2`), the burger menu open (`9:82`) and Basil cooking as the loading state (`9:183`). The app is called yeschef!, not Sprig (decided at 13:22), and the chef is Basil.
 
 ## Figma for agents
 
@@ -51,7 +51,9 @@ Gemma on the Gemini API, checked at 13:05 with the team key:
 
 The Linux laptop has Swift 6.3.2 and can't build SwiftUI, which keeps its agent on `YesChefCore` and the docs.
 
-The Gemma side is in `YesChefCore/Sources/YesChefCore/Gemma/`, and the MacBook uses it and doesn't write its own Gemini client. `SampleData` has a fixed household, week plan and recipe for previews and for an offline demo.
+The open tasks for every machine are at the top of `.plans/coding-start-checklist.md`; read them after each pull.
+
+The Gemma side is in `YesChefCore/Sources/YesChefCore/Gemma/`, and the MacBook uses it and doesn't write its own Gemini client. Since 13:44 the planner also searches six public-domain cookbooks from Project Gutenberg (`YesChefCore/Sources/YesChefCore/Cookbooks/`) and puts the best passages in each prompt, and `DinnerIdea.source` names the book an idea came from. `SampleData` has a fixed household, week plan and recipe for previews and for an offline demo.
 
 ```swift
 import YesChefCore

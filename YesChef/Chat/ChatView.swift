@@ -5,7 +5,7 @@ struct ChatView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @AppStorage(basilMutedKey) private var muted = false
+    private var voice = BasilVoiceSettings.shared
     @State private var draft = ""
     @FocusState private var typing: Bool
 
@@ -37,14 +37,14 @@ struct ChatView: View {
                 .onChange(of: isThinking) { scroll(proxy) }
                 .onAppear { proxy.scrollTo(bottom) }
             }
-            .background(Palette.cream)
+            .background(Theme.cream)
             .safeAreaInset(edge: .bottom) { composer }
             .navigationTitle("Basil")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(muted ? "Unmute Basil" : "Mute Basil", systemImage: muted ? "speaker.slash" : "speaker.wave.2") {
-                        muted.toggle()
+                    Button(voice.muted ? "Unmute Basil" : "Mute Basil", systemImage: voice.muted ? "speaker.slash" : "speaker.wave.2") {
+                        voice.muted.toggle()
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
@@ -69,11 +69,11 @@ struct ChatView: View {
                 .onSubmit(send)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .background(.white, in: .rect(cornerRadius: 20))
+                .background(Theme.card, in: .rect(cornerRadius: 20))
             Button("Send", systemImage: "arrow.up.circle.fill", action: send)
                 .labelStyle(.iconOnly)
                 .font(.largeTitle)
-                .foregroundStyle(Palette.green)
+                .foregroundStyle(Theme.green)
                 .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isThinking)
         }
         .padding()
@@ -86,12 +86,6 @@ struct ChatView: View {
         draft = ""
         Task { await model.ask(text) }
     }
-}
-
-private enum Palette {
-    static let cream = Color(red: 0xf8 / 255, green: 0xf5 / 255, blue: 0xec / 255)
-    static let ink = Color(red: 0x26 / 255, green: 0x3b / 255, blue: 0x2e / 255)
-    static let green = Color(red: 0x38 / 255, green: 0x63 / 255, blue: 0x47 / 255)
 }
 
 private struct Bubble: View {
@@ -108,8 +102,8 @@ private struct Bubble: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .foregroundStyle(isUser ? Color.white : Palette.ink)
-            .background(isUser ? Palette.green : Color.white, in: .rect(cornerRadius: 18))
+            .foregroundStyle(isUser ? Theme.card : Theme.ink)
+            .background(isUser ? Theme.green : Theme.card, in: .rect(cornerRadius: 18))
             .accessibilityLabel(typing ? "Basil is thinking" : "\(isUser ? "You" : "Basil"): \(message.text)")
             if !isUser { Spacer(minLength: 48) }
         }

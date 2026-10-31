@@ -17,6 +17,13 @@ We built it at Hacktoberfest Hack Day Raleigh on October 31, 2026.
 The full list, with what's in the demo and what comes later, is in
 [docs/requirements.md](docs/requirements.md).
 
+## Screenshots
+
+<table>
+<tr><td align="center"><img src="docs/screenshots/main.png" width="220" alt="Plan and recipe, live from Gemma"><br>Plan and recipe, live from Gemma</td><td align="center"><img src="docs/screenshots/basil-cooking.png" width="220" alt="Basil cooking while Gemma works"><br>Basil cooking while Gemma works</td><td align="center"><img src="docs/screenshots/burger-menu.png" width="220" alt="The burger menu"><br>The burger menu</td><td align="center"><img src="docs/screenshots/cook-mode.png" width="220" alt="Cook mode"><br>Cook mode</td></tr>
+<tr><td align="center"><img src="docs/screenshots/chat.png" width="220" alt="Chat with Basil"><br>Chat with Basil</td><td align="center"><img src="docs/screenshots/learning.png" width="220" alt="Basil is learning you"><br>Basil is learning you</td><td align="center"><img src="docs/screenshots/import.png" width="220" alt="Import a recipe"><br>Import a recipe</td></tr>
+</table>
+
 ## The model
 
 The app uses Gemma 4 (`gemma-4-26b-a4b-it`), Google's open-weight model, through the Gemini
@@ -55,10 +62,10 @@ GEMINI_API_KEY=your-key-here swift run yeschef-demo
 
 The app needs Xcode on a Mac.
 
-1. Create `Secrets.xcconfig` next to the Xcode project with the line
-   `GEMINI_API_KEY = your-key-here`, using a key from <https://aistudio.google.com/apikey>. The
-   file is gitignored.
-2. Open the Xcode project and run the `YesChef` scheme in an iPhone simulator.
+1. Create `Config/Secrets.xcconfig` with the line `GEMINI_API_KEY = your-key-here`, using a key
+   from <https://aistudio.google.com/apikey>. The file is gitignored. Without it the app still
+   builds and runs on its saved sample plan.
+2. Open `YesChef.xcodeproj` and run the `YesChef` scheme in an iPhone simulator.
 
 A key built into an app can be pulled out of it, which is fine for a demo. A real release would
 need a small server that holds the key.
@@ -80,6 +87,13 @@ The app adds no third-party Swift packages.
 - `.plans/`: the coding checklist and the feedback learning spec
 - `.claude/` and `.mcp.json`: the coding-agent skills and the Figma MCP server the team used
   while building
+
+## AI tools we used
+
+- Gemma 4, through the Gemini API, inside the app: it plans the week, writes the recipes, reads
+  recipe photos and answers cooking questions.
+- Claude Code, to write the code: Claude agents on the MacBook and the Linux laptop wrote the
+  Swift, with Figma's MCP server for the designs.
 
 ## License
 

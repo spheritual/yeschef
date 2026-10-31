@@ -3,14 +3,17 @@ public struct DinnerIdea: Codable, Sendable, Hashable, Identifiable {
     public var summary: String
     public var features: RecipeFeatures
     public var ingredients: [String]
+    // The public-domain cookbook an idea was based on, when Gemma used one of the passages.
+    public var source: String?
 
     public var id: String { title }
 
-    public init(title: String, summary: String, features: RecipeFeatures, ingredients: [String]) {
+    public init(title: String, summary: String, features: RecipeFeatures, ingredients: [String], source: String? = nil) {
         self.title = title
         self.summary = summary
         self.features = features
         self.ingredients = ingredients
+        self.source = source
     }
 }
 
@@ -20,7 +23,7 @@ struct DinnerIdeaReply: Decodable {
     let idea: DinnerIdea
 
     private enum Keys: String, CodingKey {
-        case title, summary, protein, flavours, minutes, difficulty, costPerServing, ingredients
+        case title, summary, protein, flavours, minutes, difficulty, costPerServing, ingredients, source
     }
 
     init(from decoder: any Decoder) throws {
@@ -37,6 +40,7 @@ struct DinnerIdeaReply: Decodable {
                 minutes: Int(c.lenientNumber(forKey: .minutes) ?? 30),
                 difficulty: Difficulty(rawValue: difficulty) ?? .medium,
                 costPerServing: c.lenientNumber(forKey: .costPerServing) ?? 4),
-            ingredients: (try? c.decode([String].self, forKey: .ingredients)) ?? [])
+            ingredients: (try? c.decode([String].self, forKey: .ingredients)) ?? [],
+            source: (try? c.decode(String.self, forKey: .source)).flatMap { $0.isEmpty ? nil : $0 })
     }
 }

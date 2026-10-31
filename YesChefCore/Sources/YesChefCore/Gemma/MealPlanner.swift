@@ -4,9 +4,16 @@ public struct MealPlanner: Sendable {
     public static let weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
     private let model: any LanguageModel
+    // Retrieval over the bundled Gutenberg cookbooks; nil runs the planner on Gemma alone.
+    public let cookbook: Cookbook?
 
-    public init(model: any LanguageModel) {
+    public init(model: any LanguageModel, cookbook: Cookbook? = Cookbook.bundled) {
         self.model = model
+        self.cookbook = cookbook
+    }
+
+    func references(for query: String, limit: Int) -> [Cookbook.Passage] {
+        cookbook?.search(query, limit: limit) ?? []
     }
 
     // Gemma proposes ideas, the hard rules drop anything a member must avoid, and the household's
@@ -18,7 +25,10 @@ public struct MealPlanner: Sendable {
         learning: [PreferenceModel] = [],
         ideasPerDay: Int = 3
     ) async throws -> WeekPlan {
-        let reply = try await askJSON(WeekReply.self, prompt: Prompts.week(household, days: days, busyDays: busyDays, ideasPerDay: ideasPerDay))
+        let tastes = household.members.flatMap { $0.likes + [$0.diet ?? ""] }.joined(separator: " ")
+        let passages = references(for: tastes.isEmpty ? "chicken soup vegetables" : tastes, limit: 6)
+            .filter { passage in household.bannedTerms.allSatisfy { !HardRules.mentions(passage.text, $0.lowercased()) } }
+        let reply = try await askJSON(WeekReply.self, prompt: Prompts.week(household, days: days, busyDays: busyDays, ideasPerDay: ideasPerDay, references: passages))
         var rng = SystemRandomNumberGenerator()
         let planned: [WeekPlan.Day] = reply.days.compactMap { day in
             let safe = HardRules.excluding(day.ideas.map(\.idea), ingredients: \.ingredients, banned: household.bannedTerms)
@@ -32,7 +42,8 @@ public struct MealPlanner: Sendable {
     }
 
     public func recipe(for idea: DinnerIdea, household: Household, servings: Int = 4) async throws -> RecipeDetail {
-        let recipe = try await askJSON(RecipeDetail.self, prompt: Prompts.recipe(idea, household: household, servings: servings))
+        let passages = references(for: idea.title + " " + (idea.source ?? ""), limit: 2)
+        let recipe = try await askJSON(RecipeDetail.self, prompt: Prompts.recipe(idea, household: household, servings: servings, references: passages))
         try Self.checkSafe(recipe, household: household)
         return recipe
     }
@@ -44,7 +55,8 @@ public struct MealPlanner: Sendable {
     }
 
     public func askChef(_ question: String, step: RecipeDetail.Step? = nil, recipe: RecipeDetail? = nil) async throws -> String {
-        try await model.generate(prompt: Prompts.question(question, step: step, recipe: recipe), system: Prompts.chef, image: nil, imageMIMEType: "image/jpeg")
+        let passages = references(for: question + " " + (recipe?.title ?? ""), limit: 2)
+        return try await model.generate(prompt: Prompts.question(question, step: step, recipe: recipe, references: passages), system: Prompts.chef, image: nil, imageMIMEType: "image/jpeg")
     }
 
     // One retry covers the common case of a reply that's almost JSON.
