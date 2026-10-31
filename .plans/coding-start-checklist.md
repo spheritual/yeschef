@@ -52,8 +52,8 @@ Hardcoded for the demo, found at 14:10:
       change it.
 - [ ] `AppModel.plan` starts as `SampleData.weekPlan`, and `planWeek` always plans Monday to
       Wednesday (`weekdays.prefix(3)`), not the next three days from today.
-- [ ] `record(_:for:onBusyDay:)` is called without `onBusyDay` from cook mode, which means
-      feedback is always recorded as a calm day and the two busy-day features never learn.
+- [x] Cook mode now passes the real busy day to feedback (68e1080, nrlutken), which lets the two
+      busy-day features learn.
 - [ ] The learning models are in memory only and reset when the app quits (decided at 13:22).
 - [ ] With no key, `open` shows `SampleData.recipe` (the fajitas) for any dinner.
 - [ ] YesChefCore defaults: 3 ideas per day, 4 servings per recipe, temperature 0.7, a 90-second
