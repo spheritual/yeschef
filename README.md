@@ -17,6 +17,13 @@ We built it at Hacktoberfest Hack Day Raleigh on October 31, 2026.
 The full list, with what's in the demo and what comes later, is in
 [docs/requirements.md](docs/requirements.md).
 
+## Screenshots
+
+<table>
+<tr><td align="center"><img src="docs/screenshots/main.png" width="220" alt="Plan and recipe, live from Gemma"><br>Plan and recipe, live from Gemma</td><td align="center"><img src="docs/screenshots/basil-cooking.png" width="220" alt="Basil cooking while Gemma works"><br>Basil cooking while Gemma works</td><td align="center"><img src="docs/screenshots/burger-menu.png" width="220" alt="The burger menu"><br>The burger menu</td><td align="center"><img src="docs/screenshots/cook-mode.png" width="220" alt="Cook mode"><br>Cook mode</td></tr>
+<tr><td align="center"><img src="docs/screenshots/chat.png" width="220" alt="Chat with Basil"><br>Chat with Basil</td><td align="center"><img src="docs/screenshots/learning.png" width="220" alt="Basil is learning you"><br>Basil is learning you</td><td align="center"><img src="docs/screenshots/import.png" width="220" alt="Import a recipe"><br>Import a recipe</td></tr>
+</table>
+
 ## The model
 
 The app uses Gemma 4 (`gemma-4-26b-a4b-it`), Google's open-weight model, through the Gemini
