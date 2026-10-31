@@ -5,6 +5,7 @@ enum MenuDestination: String, CaseIterable, Identifiable {
     case recipes = "Recipes"
     case shopping = "Shopping list"
     case household = "Household"
+    case importRecipe = "Import a recipe"
     case settings = "Settings"
 
     var id: String { rawValue }
@@ -16,6 +17,7 @@ enum MenuDestination: String, CaseIterable, Identifiable {
         case .recipes: ("lettuce", Theme.lettuce)
         case .shopping: ("tomato", Theme.tomato)
         case .household: ("cheese", Theme.cheese)
+        case .importRecipe: ("patty", Theme.patty)
         case .settings: ("bottom bun", Theme.bun)
         }
     }

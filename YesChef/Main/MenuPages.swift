@@ -108,6 +108,8 @@ struct SettingsPage: View {
     var body: some View {
         Page(title: "Settings") {
             List {
+                LabeledContent("App", value: "yeschef!")
+                    .listRowBackground(Theme.card)
                 LabeledContent("Basil's brain", value: model.isOffline ? "Offline sample data" : "Gemma 4")
                     .listRowBackground(Theme.card)
                 LabeledContent("Busy days", value: model.busyDays.sorted().formatted())

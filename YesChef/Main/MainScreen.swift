@@ -46,6 +46,7 @@ struct MainScreen: View {
             case .recipes: RecipesPage()
             case .shopping: ShoppingListPage()
             case .household: HouseholdPage()
+            case .importRecipe: ImportView()
             case .settings: SettingsPage()
             case .thisWeek: EmptyView()
             }
