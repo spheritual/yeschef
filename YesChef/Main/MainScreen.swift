@@ -84,7 +84,7 @@ struct MainScreen: View {
         VStack(alignment: .leading, spacing: 12) {
             if let recipe = model.recipe {
                 Text("Up next").font(.heading(.title2)).foregroundStyle(Theme.ink)
-                RecipeCard(recipe: recipe, eyebrow: eyebrow) { showCook = true }
+                RecipeCard(recipe: recipe, eyebrow: eyebrow, source: model.recipeIdea?.source) { showCook = true }
             }
             HStack {
                 Text("This week").font(.heading(.title3)).foregroundStyle(Theme.ink)
@@ -196,6 +196,7 @@ private struct SubtitleBar: View {
 private struct RecipeCard: View {
     let recipe: RecipeDetail
     let eyebrow: String
+    let source: String?
     let start: () -> Void
 
     var body: some View {
@@ -204,6 +205,7 @@ private struct RecipeCard: View {
             Text(recipe.title).font(.heading(.title3)).foregroundStyle(Theme.ink)
             Text("\(recipe.minutes) min, serves \(recipe.servings)")
                 .font(.caption).foregroundStyle(Theme.muted)
+            SourceLine(source: source)
             VStack(alignment: .leading, spacing: 4) {
                 Text("Ingredients").font(.subheadline.weight(.semibold)).foregroundStyle(Theme.ink)
                 ForEach(recipe.ingredients, id: \.name) { item in
@@ -248,6 +250,7 @@ private struct DayCard: View {
                 Text(day.pick.title).font(.heading(.headline)).foregroundStyle(Theme.ink)
                 Text(day.pick.summary).font(.footnote).foregroundStyle(Theme.muted)
                     .multilineTextAlignment(.leading)
+                SourceLine(source: day.pick.source)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -257,6 +260,19 @@ private struct DayCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityHint("Opens the recipe")
+    }
+}
+
+/// "Adapted from …" when Gemma based an idea on a public-domain cookbook; nothing otherwise.
+private struct SourceLine: View {
+    let source: String?
+
+    var body: some View {
+        if let source {
+            Text("Adapted from \(source) (Project Gutenberg)")
+                .font(.caption2).foregroundStyle(Theme.muted)
+                .multilineTextAlignment(.leading)
+        }
     }
 }
 
