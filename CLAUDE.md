@@ -18,7 +18,7 @@ A personal AI cooking assistant. Gemma 4 is the brain, Swift/SwiftUI is the stac
 
 - Swift 6 / SwiftUI, an iOS app built in Xcode on the MacBook
 - Gemma 4 through the Gemini API (`gemma-4-26b-a4b-it`), called over REST with `URLSession`. The Gemma prize is for models "via the Gemini API", which rules out on-device for the prize.
-- One local SQLite database, through SwiftData or the sqlite3 library (still open)
+- No storage for the demo: the app keeps everything in memory and saves nothing, not even settings (decided at 13:22). One local SQLite database, through SwiftData or the sqlite3 library, comes after the hackathon.
 
 ## Docs
 
@@ -28,7 +28,7 @@ A personal AI cooking assistant. Gemma 4 is the brain, Swift/SwiftUI is the stac
 
 ## Design
 
-The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?node-id=1-2>. The team's screens call the app Sprig and the chef Basil, with Fraunces headings, Inter body text, a cream background (`#f8f5ec`), dark green text (`#263b2e`) and green buttons (`#386347`). Three proposal frames sit to the right of them: the main screen (node `9:2`), the burger menu open (`9:82`) and Basil cooking as the loading state (`9:183`). Whether the app is called Sprig or yeschef! is still open.
+The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?node-id=1-2>. The team's screens call the app Sprig and the chef Basil, with Fraunces headings, Inter body text, a cream background (`#f8f5ec`), dark green text (`#263b2e`) and green buttons (`#386347`). Three proposal frames sit to the right of them: the main screen (node `9:2`), the burger menu open (`9:82`) and Basil cooking as the loading state (`9:183`). The app is called yeschef!, not Sprig (decided at 13:22), and the chef is Basil.
 
 ## Figma for agents
 

@@ -23,7 +23,8 @@ Items marked "unverified" are things nobody has checked yet.
 - [ ] Pick where the Gemini key lives. Anyone holding the app can pull out a key compiled into it.
       For the demo, a gitignored `Secrets.xcconfig` on the Mac works. A real release would need a
       small server that holds the key.
-- [ ] Pick the database layer. SwiftData is Apple's own and stores its data in SQLite, but it only
+- [x] Pick the database layer. Decided at 13:22: the demo saves nothing and keeps everything in
+      memory, and this choice waits until after the hackathon. SwiftData is Apple's own and stores its data in SQLite, but it only
       builds on the Mac. The sqlite3 C library builds on the Mac and on the Linux laptop, which
       lets Claude test storage code before it reaches the Mac, at the cost of hand-written SQL.
 - [ ] Pick the lowest iOS version. SwiftData and `@Observable` need iOS 17 or later. If we demo on
