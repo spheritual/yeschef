@@ -80,5 +80,8 @@ Every call can throw `GemmaError`, and the screen shows Basil's "Confused" mood 
 Project skills live in `.claude/skills/`.
 
 - `/interview`: in-depth interview to produce a detailed spec in `.plans/<name>-spec.md`.
+- `/animate`: builds an animation from scratch, deciding in order whether to animate, why, with which tool and curve. From jmo-skills (MIT).
+- `/better-ui`: polish for surfaces, icons and motion, with exact values for radius, shadows and easing. From jmo-skills. Its examples are web CSS, so translate the values to SwiftUI.
+- `/ste`: explains technical ideas in clear, precise language.
 - `/swiftui-pro`: Paul Hudson's SwiftUI review skill, copied from twostraws/SwiftUI-Agent-Skill at commit f2920b6 (MIT).
 - `/swiftui-expert-skill`: Antoine van der Lee's SwiftUI skill, copied from AvdLee/SwiftUI-Agent-Skill at commit 204dba7 (MIT). Its Instruments scripts were left out, which means its trace recording and analysis steps won't run.
