@@ -2,17 +2,22 @@
 
 yeschef! is an iPhone app that plans a household's meals for the week and teaches a beginner to
 cook them. A small chef character lives at the top of the screen, and you talk to him by voice or
-text. He plans around your family's tastes, allergies, budget and calendar, walks you through each
-recipe a step at a time, and learns from what you cook, rate and skip.
+text. He plans around your family's tastes and allergies, walks you through each recipe a step at
+a time, and learns from what you cook and rate.
 
 We built it at Hacktoberfest Hack Day Raleigh on October 31, 2026.
 
 ## What it does
 
-- Plans a week of meals for everyone in the household, each with their own preferences and needs.
-- Teaches each recipe in plain words, with timers, and answers questions about a step.
-- Builds the shopping list from the week's plan.
-- Learns from feedback and keeps suggesting new dishes, using the model described below.
+- Plans the next few dinners for everyone in the household with Gemma 4, skipping anything a
+  member is allergic to or avoids.
+- Grounds its ideas in 3,268 recipe passages from six public-domain cookbooks on Project
+  Gutenberg, and names the book a dinner was adapted from.
+- Teaches each recipe a step at a time, with a plain-words tip and a timer, and answers questions
+  about a step, typed or spoken, out loud.
+- Reads a recipe from a photo or screenshot.
+- Builds the shopping list from the plan.
+- Learns from what you cook and rate, and shows what it has learned in "Basil is learning you".
 
 The full list, with what's in the demo and what comes later, is in
 [docs/requirements.md](docs/requirements.md).

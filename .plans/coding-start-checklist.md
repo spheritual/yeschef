@@ -10,7 +10,8 @@ Submissions open at 2:15 and close at 2:45, and demos run from 2:45. No new feat
 
 MacBook:
 
-- [ ] Pull `main` (96fc980 or later) and rebuild. YesChefCore now bundles
+- [x] Pull `main` (96fc980 or later) and rebuild. Done at 13:48: the app builds and carries
+      `YesChefCore_YesChefCore.bundle/cookbooks.json`. YesChefCore now bundles
       `Resources/cookbooks.json` (2.6 MB, six public-domain cookbooks from Project Gutenberg) as a
       package resource. Check the app still builds, and that `Cookbook.bundled` isn't nil in the
       simulator, which means the resource made it into the app.
@@ -18,14 +19,16 @@ MacBook:
       the idea on a classic, and it's nil otherwise. A line like "Adapted from The Century Cook
       Book (Project Gutenberg)" on the day card and the recipe screen shows the grounding to the
       judges.
-- [ ] Plan fewer days for the demo. `AppModel.planWeek()` asks for all seven days, which nobody has
+- [x] Plan fewer days for the demo. Done in fa7799c: three days, and with retrieval on, the plan,
+      a recipe and a question took under 60 seconds on the simulator. `AppModel.planWeek()` asked for all seven days, which nobody had
       timed. A two-day plan, a recipe and a question took about 37 seconds together on the Linux
       laptop. Passing `days: Array(MealPlanner.weekdays.prefix(3))` keeps the wait short while
       Basil cooks.
 - [ ] Rehearse the demo path end to end in the simulator with the real key: plan, open a dinner,
       cook a step, ask Basil by voice, rate it, show the learning card, import the salmon
-      screenshot.
-- [ ] Trim the README's "What it does" to what the demo shows, and add one line on the Gutenberg
+      screenshot. Plan, open and a typed question ran live at 13:48 via the debug launch argument
+      `-demo plan,recipe,ask`. Voice, rating and import need a person tapping.
+- [x] Trim the README's "What it does" to what the demo shows, and add one line on the Gutenberg
       cookbooks.
 
 Team:
