@@ -3,20 +3,26 @@ import SwiftUI
 /// The app's colors and type, from the Figma proposal. Fraunces and Inter aren't bundled, so
 /// headings use the system serif and body text the system default.
 enum Theme {
-    static let cream = Color(hex: 0xF8F5EC)
-    static let stage = Color(hex: 0xE7ECCD)
-    static let card = Color(hex: 0xFFFEF8)
-    static let ink = Color(hex: 0x263B2E)
-    static let green = Color(hex: 0x386347)
-    static let muted = Color(hex: 0x73796B)
+    // Every token adapts to the system appearance. Light values are the Figma proposal's.
+    static let cream = Color(light: 0xF8F5EC, dark: 0x141A16)
+    static let stage = Color(light: 0xE7ECCD, dark: 0x232C25)
+    static let card = Color(light: 0xFFFEF8, dark: 0x1E2621)
+    static let ink = Color(light: 0x263B2E, dark: 0xECE8DC)
+    static let green = Color(light: 0x386347, dark: 0x7FB08E)
+    static let muted = Color(light: 0x73796B, dark: 0x9BA392)
 
-    // The burger's layers, which double as the menu's colors.
-    static let bun = Color(hex: 0xDE9F79)
-    static let lettuce = Color(hex: 0x8FAE5F)
-    static let tomato = Color(hex: 0xBC5039)
-    static let cheese = Color(hex: 0xF1C95A)
-    static let patty = Color(hex: 0x7A4A2A)
-    static let counter = Color(hex: 0xC29465)
+    /// Text and icons placed on a `green` fill.
+    static let onGreen = Color(light: 0xFFFEF8, dark: 0x0F1511)
+    /// Separator and card outline: ink at low opacity, so it works on any surface.
+    static let hairline = Color(light: 0x263B2E, dark: 0xECE8DC, lightAlpha: 0.08, darkAlpha: 0.10)
+
+    // The burger's layers, which double as the menu's colors. Slightly dimmed in dark mode.
+    static let bun = Color(light: 0xDE9F79, dark: 0xD09169)
+    static let lettuce = Color(light: 0x8FAE5F, dark: 0x82A055)
+    static let tomato = Color(light: 0xBC5039, dark: 0xB04A35)
+    static let cheese = Color(light: 0xF1C95A, dark: 0xE0BA52)
+    static let patty = Color(light: 0x7A4A2A, dark: 0x8C5933)
+    static let counter = Color(light: 0xC29465, dark: 0xA9804F)
 }
 
 extension Color {
@@ -25,6 +31,19 @@ extension Color {
             red: Double((hex >> 16) & 0xFF) / 255,
             green: Double((hex >> 8) & 0xFF) / 255,
             blue: Double(hex & 0xFF) / 255)
+    }
+
+    /// A color that resolves to `light` or `dark` hex depending on the current appearance.
+    init(light: UInt32, dark: UInt32, lightAlpha: Double = 1, darkAlpha: Double = 1) {
+        self.init(uiColor: UIColor { traits in
+            let isDark = traits.userInterfaceStyle == .dark
+            let hex = isDark ? dark : light
+            return UIColor(
+                red: CGFloat((hex >> 16) & 0xFF) / 255,
+                green: CGFloat((hex >> 8) & 0xFF) / 255,
+                blue: CGFloat(hex & 0xFF) / 255,
+                alpha: isDark ? darkAlpha : lightAlpha)
+        })
     }
 }
 
@@ -51,7 +70,7 @@ struct PillButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.footnote.weight(.semibold))
-            .foregroundStyle(Theme.card)
+            .foregroundStyle(Theme.onGreen)
             .padding(.horizontal, 16)
             .padding(.vertical, 9)
             .background(Theme.green, in: .capsule)
