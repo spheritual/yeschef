@@ -42,7 +42,8 @@ MacBook, after 14:08:
       the app. The checks should stay, and editing, adding and swiping away lines should work.
 - [ ] Try the mic in the simulator. It should now wait up to 8 seconds for the first word and stop
       2 seconds after the last, and Basil should still speak his answer afterwards.
-- [ ] Check the new moods: the pan only while Gemma thinks, a hop while listening, the cookbook
+- [ ] Check the new moods (Basil is now a SwiftUI jelly chef since ce5c028, with all moods and the
+      wardrobe outfits drawn in code; seen only as still renders): the pan only while Gemma thinks, a hop while listening, the cookbook
       for answers and recipes, the wall clock beside a running timer in cook mode, and the
       reactions to a 5-star and a 1-star rating.
 
@@ -50,14 +51,16 @@ Hardcoded for the demo, found at 14:10:
 
 - [ ] `AppModel.household` is `SampleData.household` (Alex and Sam, a peanut allergy, a $90
       budget). The Household page only shows it, with nothing to edit.
-- [ ] `AppModel.busyDays` is always `["Wednesday"]`, set in code, with no screen or calendar to
-      change it.
-- [ ] `AppModel.plan` starts as `SampleData.weekPlan`, and `planWeek` always plans Monday to
-      Wednesday (`weekdays.prefix(3)`), not the next three days from today.
+- [x] `AppModel.busyDays` was always `["Wednesday"]`. Since 96d60d2 it is the second of the three
+      planned days, a stand-in for a calendar, so the quick-dinner rule shows in every demo.
+- [x] `planWeek` planned Monday to Wednesday. Since 96d60d2 it plans today and the next two days,
+      and the sample plan shown before planning is relabeled to the same days.
 - [x] Cook mode now passes the real busy day to feedback (68e1080, nrlutken), which lets the two
       busy-day features learn.
 - [ ] The learning models are in memory only and reset when the app quits (decided at 13:22).
-- [ ] With no key, `open` shows `SampleData.recipe` (the fajitas) for any dinner.
+- [x] With no key, `open` showed the fajitas for any dinner. Since 96d60d2 other dinners open a
+      short recipe built from their own title and ingredients, Basil gives a canned answer from the
+      step's technique, and import loads the sample recipe.
 - [ ] YesChefCore defaults: 3 ideas per day, 4 servings per recipe, temperature 0.7, a 90-second
       timeout, prices in US dollars, and "chicken soup vegetables" as the cookbook search when no
       one has listed likes.

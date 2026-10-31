@@ -30,6 +30,8 @@ A personal AI cooking assistant. Gemma 4 is the brain, Swift/SwiftUI is the stac
 
 The Figma file is <https://www.figma.com/design/2avhsCApicqhfoXXjHm6KB/Untitled?node-id=1-2>. The team's screens call the app Sprig and the chef Basil, with Fraunces headings, Inter body text, a cream background (`#f8f5ec`), dark green text (`#263b2e`) and green buttons (`#386347`). Three proposal frames sit to the right of them: the main screen (node `9:2`), the burger menu open (`9:82`) and Basil cooking as the loading state (`9:183`). The app is called yeschef!, not Sprig (decided at 13:22), and the chef is Basil.
 
+Since 14:30 the app follows the system's light or dark mode. Every color is an adaptive token in `YesChef/Theme/Theme.swift` (the light values above are unchanged, the dark ones are a deep green-black with a sage green), plus `Theme.onGreen` for text on green and `Theme.hairline` for separators; don't hardcode colors in screens. Basil is a translucent jelly chef drawn in SwiftUI in `YesChef/Basil/` and `YesChef/Main/BasilView.swift`, not the exported SVG.
+
 ## Figma for agents
 
 `.mcp.json` adds Figma's official MCP server (`https://mcp.figma.com/mcp`). In the terminal, Claude Code asks to approve it on first start. After that, run `/mcp`, pick `figma` and sign in through the browser with your own Figma account. If the approval prompt never shows (the VS Code extension didn't show it on Linux), run `claude mcp add --transport http --scope local figma https://mcp.figma.com/mcp` in this folder and restart Claude Code. Read Figma's `skill://figma/figma-use/SKILL.md` resource before any `use_figma` call, and `skill://figma/figma-design-to-code/SKILL.md` before `get_design_context`. Editing the team's file needs a Full seat on its Figma team.
