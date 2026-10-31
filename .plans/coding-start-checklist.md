@@ -10,6 +10,15 @@ Submissions open at 2:15 and close at 2:45, and demos run from 2:45. No new feat
 
 MacBook:
 
+- [ ] Build the latency change (added after 15:30) for the iPhone simulator and a real iPhone. It
+      touches `YesChef/AppModel.swift` and `MealPlanner.swift`. `planWeek` now makes one Gemma call
+      per day, all at once, and took 11.8 s for three days on the Linux laptop, down from 30 s.
+      `AppModel` fetches each planned dinner's recipe in the background once the plan arrives,
+      which should make a dinner tapped about 20 s later open at once. `MealPlanner.warmUp()`
+      indexes the cookbooks off the main thread at launch. `AppModel.swift` type-checked on Linux
+      with this target's Swift 6 and main-actor settings, but only Xcode builds the app. Check
+      three things. The plan takes about 12 s, a dinner opened after 20 s opens without Basil
+      cooking first, and launch doesn't stall.
 - [x] Pull `main` (96fc980 or later) and rebuild. Done at 13:48: the app builds and carries
       `YesChefCore_YesChefCore.bundle/cookbooks.json`. YesChefCore now bundles
       `Resources/cookbooks.json` (2.6 MB, six public-domain cookbooks from Project Gutenberg) as a

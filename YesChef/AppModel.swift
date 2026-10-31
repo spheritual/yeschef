@@ -46,6 +46,9 @@ final class AppModel {
     private let planner: MealPlanner?
     private var retryJob: (() async -> Void)?
     private var quietDown: Task<Void, Never>?
+    /// Recipes fetched in the background once a plan arrives, keyed by dinner title, which lets a
+    /// tapped dinner open without Gemma's 20-second wait. Screens never read it.
+    @ObservationIgnored private var prefetched: [String: Task<RecipeDetail?, Never>] = [:]
 
     var isOffline: Bool { planner == nil }
 
@@ -61,6 +64,11 @@ final class AppModel {
         }
         plan = sample
         planner = apiKey.map { MealPlanner(model: GemmaClient(apiKey: $0)) }
+        // Indexing the cookbooks takes seconds in a debug build. warmUp runs off the main actor,
+        // and it's done by the time the cook taps Plan my week.
+        if planner != nil {
+            Task { await MealPlanner.warmUp() }
+        }
     }
 
     /// The names of the next `count` days starting today, in the form `MealPlanner.weekdays` uses.
@@ -88,6 +96,7 @@ final class AppModel {
             self.plan = try await planner.planWeek(
                 for: self.household, days: Self.upcomingDays(),
                 busyDays: self.busyDays, learning: Array(self.learning.values))
+            self.prefetchRecipes()
             self.shopping.sync(with: self.plan)
             self.saveShopping()
             self.award(.planned)
@@ -102,9 +111,26 @@ final class AppModel {
             return say("Here's \(idea.title). Tap Start cooking when you're ready.", mood: .teaching)
         }
         await run("Getting the recipe for \(idea.title)…", teaching: true, retry: { [weak self] in await self?.open(idea) }) {
-            self.recipe = try await planner.recipe(for: idea, household: self.household)
+            self.recipe = try await self.fetchRecipe(for: idea, using: planner)
             return "Here's \(idea.title). Tap Start cooking when you're ready."
         }
+    }
+
+    /// Starts fetching the recipe for every planned dinner that isn't already on its way.
+    private func prefetchRecipes() {
+        guard let planner else { return }
+        let household = household
+        for idea in plan.days.map(\.pick) where prefetched[idea.title] == nil {
+            prefetched[idea.title] = Task { try? await planner.recipe(for: idea, household: household) }
+        }
+    }
+
+    /// The prefetched recipe, waiting for it if it's still on its way, or a fresh fetch. A failed
+    /// prefetch is forgotten, which lets the fresh fetch show its error and its retry.
+    private func fetchRecipe(for idea: DinnerIdea, using planner: MealPlanner) async throws -> RecipeDetail {
+        if let ready = await prefetched[idea.title]?.value { return ready }
+        prefetched[idea.title] = nil
+        return try await planner.recipe(for: idea, household: household)
     }
 
     /// Reads a recipe from a photo or screenshot, which shows Gemma reading images. An imported
@@ -148,6 +174,7 @@ final class AppModel {
               old.pick.title != change.idea.title else { return }
         record(.swapped, for: old.pick, onBusyDay: old.isBusy)
         plan = plan.replacing(day: change.day, with: change.idea)
+        prefetchRecipes()
         shopping.sync(with: plan)
         saveShopping()
     }
