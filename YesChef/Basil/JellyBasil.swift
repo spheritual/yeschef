@@ -7,11 +7,16 @@ struct JellyBasil: View {
     @Environment(\.colorScheme) private var scheme
 
     private var dark: Bool { scheme == .dark }
-    private let core = Color(red: 0.66, green: 0.95, blue: 0.72)
+    private let core = Color(red: 0.62, green: 0.97, blue: 0.70)
     private var edge: Color { dark ? Color(red: 0.20, green: 0.68, blue: 0.40) : Color(red: 0.14, green: 0.55, blue: 0.31) }
 
     var body: some View {
         ZStack {
+            if pose.sadEyes {
+                // Melting: a puddle of jelly spreading under him.
+                Ellipse().fill(edge.opacity(0.55)).frame(width: 112, height: 12).blur(radius: 1.5)
+                    .position(x: 68, y: 147)
+            }
             jelly
             apron
             hat
@@ -74,9 +79,9 @@ struct JellyBasil: View {
                 .rotationEffect(.degrees(12))
                 .position(x: 41, y: 120)
             // Soft pink cheeks.
-            Ellipse().fill(Color.pink.opacity(0.4)).frame(width: 11, height: 7).blur(radius: 2)
+            Ellipse().fill(Color(red: 1, green: 0.55, blue: 0.55).opacity(0.55)).frame(width: 11, height: 7).blur(radius: 2)
                 .position(x: 46, y: 88)
-            Ellipse().fill(Color.pink.opacity(0.4)).frame(width: 11, height: 7).blur(radius: 2)
+            Ellipse().fill(Color(red: 1, green: 0.55, blue: 0.55).opacity(0.55)).frame(width: 11, height: 7).blur(radius: 2)
                 .position(x: 90, y: 88)
         }
         .compositingGroup()
@@ -97,7 +102,7 @@ struct JellyBasil: View {
     }
 
     private var hat: some View {
-        let fill = LinearGradient(colors: [.white, Color(red: 0.88, green: 0.93, blue: 0.90)], startPoint: .top, endPoint: .bottom)
+        let fill = LinearGradient(colors: [.white, Color(red: 0.94, green: 0.97, blue: 0.95)], startPoint: .top, endPoint: .bottom)
         return ZStack {
             Circle().fill(fill).frame(width: 24, height: 24).position(x: 54, y: 33)
             Circle().fill(fill).frame(width: 24, height: 24).position(x: 82, y: 33)
